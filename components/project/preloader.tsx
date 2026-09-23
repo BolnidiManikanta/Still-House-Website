@@ -1,59 +1,71 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react";
 
-export default function Preloader({ onDone }: { onDone: () => void }) {
-  const [count, setCount] = useState(0)
-  const [hidden, setHidden] = useState(false)
-  const rootRef = useRef<HTMLDivElement>(null)
+export default function Preloader({
+  title = "Blueyard",
+  onDone,
+}: {
+  title?: string;
+  onDone: () => void;
+}) {
+  const [count, setCount] = useState(0);
+  const [hidden, setHidden] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    let n = 0
-    const id = window.setInterval(() => {
-      n += Math.random() * 7 + 7
-      if (n >= 100) {
-        n = 100
-        window.clearInterval(id)
-        window.setTimeout(() => {
-          setHidden(true)
-          window.setTimeout(onDone, 900)
-        }, 350)
+    // Ultra-fast responsive loader to meet the user's requirement of millisecond loading
+    let current = 0;
+    const interval = window.setInterval(() => {
+      current += 25;
+      if (current >= 100) {
+        current = 100;
+        window.clearInterval(interval);
+        setCount(100);
+        setHidden(true);
+        onDone();
+      } else {
+        setCount(current);
       }
-      setCount(Math.floor(n))
-    }, 95)
-    return () => window.clearInterval(id)
-  }, [onDone])
+    }, 40);
+
+    return () => window.clearInterval(interval);
+  }, [onDone]);
+
+  if (hidden) return null;
 
   return (
     <div
       ref={rootRef}
-      className="fixed inset-0 z-[90] flex flex-col justify-between bg-[#e8e8e8] px-4 py-4 transition-[clip-path,opacity] duration-[900ms] ease-[cubic-bezier(0.76,0,0.24,1)] md:px-6 md:py-6"
-      style={{
-        clipPath: hidden ? "inset(0 0 100% 0)" : "inset(0 0 0% 0)",
-      }}
+      className={`fixed inset-0 z-[90] flex flex-col justify-between bg-[#e8e8e8] px-4 py-4 transition-all duration-300 pointer-events-none md:px-6 md:py-6 ${
+        hidden ? "opacity-0 -translate-y-4" : "opacity-100"
+      }`}
       aria-hidden={hidden}
     >
       <div className="flex items-center justify-between font-sans text-[11px] uppercase tracking-[0.22em] text-[#030303]">
-        <span>Immersive Studio</span>
-        <span>Loading Environment</span>
+        <span>Still Studio</span>
+        <span>Loading Exhibition</span>
       </div>
 
       <div className="flex flex-1 items-center">
-        <p className="max-w-[14ch] font-serif text-[12vw] leading-[0.9] text-[#030303] md:text-[8vw]">
-          Constellation
+        <p className="max-w-[14ch] font-serif text-[12vw] leading-[0.9] text-[#030303] md:text-[8vw] uppercase">
+          {title}
         </p>
       </div>
 
       <div className="flex items-end justify-between">
         <span className="font-sans text-[11px] uppercase tracking-[0.22em] text-[#030303]">
-          Digital Experience
+          Spatial Monograph
         </span>
         <span className="font-serif text-[18vw] leading-[0.8] tabular-nums text-[#030303] md:text-[9vw]">
           {String(count).padStart(3, "0")}
         </span>
       </div>
 
-      <div className="pointer-events-none absolute bottom-0 left-0 h-px bg-[#030303] transition-[width] duration-150 ease-out" style={{ width: `${count}%` }} />
+      <div
+        className="pointer-events-none absolute bottom-0 left-0 h-0.5 bg-[#030303] transition-[width] duration-75 ease-out"
+        style={{ width: `${count}%` }}
+      />
     </div>
-  )
+  );
 }

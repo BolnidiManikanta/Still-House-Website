@@ -3,9 +3,10 @@ import "@/styles/globals.css";
 import MotionProvider from "@/components/MotionProvider";
 import Navbar from "@/components/Navbar";
 import AtmosphereOverlay from "@/components/AtmosphereOverlay";
-import CinematicLoader from "@/components/CinematicLoader";
 import FilmGrainLayer from "@/components/canvas/FilmGrainLayer";
 import PageTransition from "@/components/PageTransition";
+import { SiteConfigProvider } from "@/lib/admin/siteConfigStore";
+import AdminFloatingBar from "@/components/admin/AdminFloatingBar";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -13,9 +14,14 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Dreamscapes — Unseen Studio Visual Monograph | Fine Art Photography",
+  title: "Dreamscapes — Still Studio",
   description:
-    "An exact visual, motion, and interaction recreation of Dreamscapes by Unseen Studio. Featuring medium-format photographic monograph content, atmospheric fog, and gallery presentation.",
+    "Fine art photography monograph and visual portfolio featuring Unseen Studio Dreamscapes aesthetic with Lenis smooth scrolling, GSAP choreography, and Three.js atmospheric effects.",
+  openGraph: {
+    title: "Dreamscapes — Still Studio",
+    description:
+      "Fine art photography monograph and visual portfolio featuring Unseen Studio Dreamscapes aesthetic with Lenis smooth scrolling, GSAP choreography, and Three.js atmospheric effects.",
+  },
   keywords: [
     "Dreamscapes",
     "Unseen Studio",
@@ -36,18 +42,21 @@ export default function RootLayout({
   return (
     <html lang="en" className="lenis">
       <body className="bg-[#EBE7E1] text-[#110F0E] antialiased selection:bg-[#110F0E] selection:text-[#EBE7E1]">
-        <CinematicLoader />
-        <FilmGrainLayer />
-        <MotionProvider>
-          <PageTransition>
-            <AtmosphereOverlay />
-            <Navbar />
-            <main className="relative w-full overflow-x-hidden">
-              {children}
-            </main>
-          </PageTransition>
-        </MotionProvider>
+        <SiteConfigProvider>
+          <FilmGrainLayer />
+          <MotionProvider>
+            <PageTransition>
+              <AtmosphereOverlay />
+              <Navbar />
+              <main className="relative w-full overflow-x-clip">
+                {children}
+              </main>
+              <AdminFloatingBar />
+            </PageTransition>
+          </MotionProvider>
+        </SiteConfigProvider>
       </body>
     </html>
   );
 }
+

@@ -1,15 +1,19 @@
 "use client"
 
 import { useCallback, useEffect, useRef, useState } from "react"
+import dynamic from "next/dynamic"
 import Lenis from "lenis"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { motion, clamp, lerp, smoothstep } from "@/lib/project/motion"
 import Preloader from "./preloader"
-import WebglScene from "./webgl-scene"
 import ScrollDots from "./scroll-dots"
 import Cursor from "./cursor"
 import Sections from "./sections"
+
+const WebglScene = dynamic(() => import("./webgl-scene"), {
+  ssr: false,
+})
 
 gsap.registerPlugin(ScrollTrigger)
 
@@ -20,11 +24,10 @@ const lerpColor = (t: number) => {
   return `rgb(${r},${r},${r})`
 }
 
-export default function Experience() {
+export default function Experience({ slug = "blueyard" }: { slug?: string }) {
   const rootRef = useRef<HTMLDivElement>(null)
   const [loaded, setLoaded] = useState(false)
   const [ready, setReady] = useState(false)
-  const [soundOn, setSoundOn] = useState(false)
 
   const onPreloadDone = useCallback(() => setLoaded(true), [])
 
@@ -51,46 +54,72 @@ export default function Experience() {
       // line-masked headings
       gsap.utils.toArray<HTMLElement>('[data-reveal="lines"]').forEach((el) => {
         const lines = el.querySelectorAll<HTMLElement>(".pr-line-inner")
-        gsap.set(lines, { yPercent: 115 })
-        ScrollTrigger.create({
-          trigger: el,
-          start: "top 88%",
-          once: true,
-          onEnter: () =>
-            gsap.to(lines, {
-              yPercent: 0,
-              duration: 1.1,
-              ease: "expo.out",
-              stagger: 0.09,
-            }),
-        })
+        const rect = el.getBoundingClientRect()
+        const isNearTop = rect.top < window.innerHeight * 0.85
+
+        if (isNearTop) {
+          gsap.fromTo(
+            lines,
+            { yPercent: 40, opacity: 0 },
+            { yPercent: 0, opacity: 1, duration: 0.9, ease: "expo.out", stagger: 0.08 }
+          )
+        } else {
+          gsap.set(lines, { yPercent: 100, opacity: 0 })
+          ScrollTrigger.create({
+            trigger: el,
+            start: "top 90%",
+            once: true,
+            onEnter: () =>
+              gsap.to(lines, {
+                yPercent: 0,
+                opacity: 1,
+                duration: 1.1,
+                ease: "expo.out",
+                stagger: 0.09,
+              }),
+          })
+        }
       })
 
       // fade / rise blocks
       gsap.utils.toArray<HTMLElement>('[data-reveal="up"]').forEach((el) => {
-        gsap.set(el, { y: 40, autoAlpha: 0 })
-        ScrollTrigger.create({
-          trigger: el,
-          start: "top 90%",
-          once: true,
-          onEnter: () => gsap.to(el, { y: 0, autoAlpha: 1, duration: 1, ease: "expo.out" }),
-        })
+        const rect = el.getBoundingClientRect()
+        const isNearTop = rect.top < window.innerHeight * 0.85
+
+        if (isNearTop) {
+          gsap.fromTo(el, { y: 20, autoAlpha: 0 }, { y: 0, autoAlpha: 1, duration: 0.8, ease: "expo.out" })
+        } else {
+          gsap.set(el, { y: 30, autoAlpha: 0 })
+          ScrollTrigger.create({
+            trigger: el,
+            start: "top 92%",
+            once: true,
+            onEnter: () => gsap.to(el, { y: 0, autoAlpha: 1, duration: 1, ease: "expo.out" }),
+          })
+        }
       })
 
       // media reveal (image scales down into a settled frame)
       gsap.utils.toArray<HTMLElement>("[data-media]").forEach((el) => {
         const img = el.querySelector<HTMLElement>(".pr-media-img")
-        gsap.set(el, { clipPath: "inset(8% 8% 8% 8%)", autoAlpha: 0.4 })
-        if (img) gsap.set(img, { scale: 1.25 })
-        ScrollTrigger.create({
-          trigger: el,
-          start: "top 92%",
-          once: true,
-          onEnter: () => {
-            gsap.to(el, { clipPath: "inset(0% 0% 0% 0%)", autoAlpha: 1, duration: 1.3, ease: "expo.out" })
-            if (img) gsap.to(img, { scale: 1, duration: 1.6, ease: "expo.out" })
-          },
-        })
+        const rect = el.getBoundingClientRect()
+        const isNearTop = rect.top < window.innerHeight * 0.85
+
+        if (isNearTop) {
+          gsap.fromTo(el, { autoAlpha: 0.4 }, { autoAlpha: 1, duration: 1.0, ease: "expo.out" })
+        } else {
+          gsap.set(el, { clipPath: "inset(4% 4% 4% 4%)", autoAlpha: 0.5 })
+          if (img) gsap.set(img, { scale: 1.15 })
+          ScrollTrigger.create({
+            trigger: el,
+            start: "top 92%",
+            once: true,
+            onEnter: () => {
+              gsap.to(el, { clipPath: "inset(0% 0% 0% 0%)", autoAlpha: 1, duration: 1.2, ease: "expo.out" })
+              if (img) gsap.to(img, { scale: 1, duration: 1.4, ease: "expo.out" })
+            },
+          })
+        }
       })
 
       // continuous media parallax
@@ -152,7 +181,12 @@ export default function Experience() {
 
   return (
     <>
-      {!loaded && <Preloader onDone={onPreloadDone} />}
+      {!loaded && (
+        <Preloader
+          title={slug === "blueyard" ? "Blueyard" : "Constellation"}
+          onDone={onPreloadDone}
+        />
+      )}
 
       <WebglScene />
       <ScrollDots />
@@ -164,31 +198,7 @@ export default function Experience() {
         className="relative"
         style={{ color: "var(--ink, #030303)" }}
       >
-        {/* fixed header */}
-        <header className="fixed inset-x-0 top-0 z-30 mix-blend-difference">
-          <div className="grid grid-cols-12 gap-x-4 px-4 py-4 md:px-6">
-            <a
-              href="#top"
-              data-cursor="link"
-              className="col-span-6 font-sans text-[11px] font-medium uppercase tracking-[0.22em] text-[#e8e8e8]"
-            >
-              Immersive
-            </a>
-            <div className="col-span-6 flex justify-end">
-              <button
-                type="button"
-                data-cursor="link"
-                onClick={() => setSoundOn((s) => !s)}
-                className="font-sans text-[11px] uppercase tracking-[0.22em] text-[#e8e8e8]"
-                aria-pressed={soundOn}
-              >
-                Sound {soundOn ? "On" : "Off"}
-              </button>
-            </div>
-          </div>
-        </header>
-
-        <Sections />
+        <Sections slug={slug} />
 
         {/* fine grain overlay */}
         <div className="pr-grain pointer-events-none fixed inset-0 z-[60]" aria-hidden="true" />

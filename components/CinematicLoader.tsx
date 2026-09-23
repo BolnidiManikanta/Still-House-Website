@@ -10,39 +10,58 @@ export default function CinematicLoader() {
   const [progress, setProgress] = useState(0);
 
   useEffect(() => {
-    // 0% -> 100% Counter Animation
-    const duration = 2000;
-    const intervalTime = 20;
-    const increment = 100 / (duration / intervalTime);
+    // Check if reduced motion or already loaded in session
+    const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (prefersReducedMotion) {
+      if (loaderRef.current) loaderRef.current.style.display = "none";
+      window.dispatchEvent(new CustomEvent("cinematic-loader-complete"));
+      return;
+    }
 
-    const timer = setInterval(() => {
-      setProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(timer);
-          return 100;
-        }
-        return Math.min(100, Math.floor(prev + increment));
-      });
-    }, intervalTime);
+    // 0% -> 25% -> 60% -> 100% Smooth Counter Progression (~850ms total)
+    const duration = 850;
+    const startTime = performance.now();
+
+    const updateCounter = (now: number) => {
+      const elapsed = now - startTime;
+      const t = Math.min(1, elapsed / duration);
+      // Non-linear easing (starts smooth, quick jump at 25%, 60%, completes cleanly at 100%)
+      const eased = Math.pow(t, 1.4);
+      const currentVal = Math.min(100, Math.floor(eased * 100));
+      setProgress(currentVal);
+
+      if (t < 1) {
+        requestAnimationFrame(updateCounter);
+      } else {
+        setProgress(100);
+      }
+    };
+
+    const animId = requestAnimationFrame(updateCounter);
 
     const ctx = gsap.context(() => {
-      const tl = gsap.timeline({ defaults: { ease: "power4.inOut" } });
+      const tl = gsap.timeline({
+        defaults: { ease: "power4.inOut" },
+        onComplete: () => {
+          window.dispatchEvent(new CustomEvent("cinematic-loader-complete"));
+        },
+      });
 
       tl.fromTo(
         textRef.current,
-        { opacity: 0, y: 25 },
-        { opacity: 1, y: 0, duration: 1.0, delay: 0.2 }
+        { opacity: 0, y: 15 },
+        { opacity: 1, y: 0, duration: 0.4, delay: 0.1 }
       )
-        .to(textRef.current, { opacity: 0, y: -20, duration: 0.8, delay: 1.2 })
+        .to(textRef.current, { opacity: 0, y: -15, duration: 0.35, delay: 0.5 })
         .to(loaderRef.current, {
           yPercent: -100,
-          duration: 1.6,
+          duration: 0.75,
           ease: "power4.inOut",
-        });
+        }, "-=0.1");
     }, loaderRef);
 
     return () => {
-      clearInterval(timer);
+      cancelAnimationFrame(animId);
       ctx.revert();
     };
   }, []);

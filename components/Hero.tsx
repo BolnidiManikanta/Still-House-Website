@@ -5,17 +5,20 @@ import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import CameraSVG from "./CameraSVG";
 import { usePageTransition } from "./PageTransition";
-import { VolumeX } from "lucide-react";
+import { useSiteConfig } from "@/lib/admin/siteConfigStore";
+import { getTypographyStyles } from "@/lib/admin/styleHelpers";
 
 export default function Hero() {
   const { triggerTransition } = usePageTransition();
+  const { config } = useSiteConfig();
+  const workData = config.work;
+
   const heroSectionRef = useRef<HTMLElement>(null);
   const grainRef = useRef<HTMLDivElement>(null);
   const cameraRef = useRef<HTMLDivElement>(null);
   const dreamRef = useRef<HTMLHeadingElement>(null);
   const scapesRef = useRef<HTMLHeadingElement>(null);
   const slashRef = useRef<HTMLSpanElement>(null);
-  const navRef = useRef<HTMLElement>(null);
   const metaRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -81,27 +84,6 @@ export default function Hero() {
           { opacity: 0, y: 35 },
           { opacity: 1, y: 0, duration: 1.2, delay: 0.4, ease: "power4.out" }
         );
-      }
-
-      if (navRef.current) {
-        gsap.fromTo(
-          navRef.current,
-          { opacity: 0, y: -20 },
-          { opacity: 1, y: 0, duration: 1.2, delay: 0.1, ease: "power3.out" }
-        );
-
-        // Header Navigation Opacity Scrub On Scroll
-        ScrollTrigger.create({
-          trigger: heroSectionRef.current,
-          start: "top top",
-          end: "bottom top",
-          onUpdate: (self) => {
-            if (navRef.current) {
-              const opacity = self.progress > 0.05 ? 0.75 : 1;
-              gsap.to(navRef.current, { opacity, duration: 0.4, ease: "power2.out" });
-            }
-          },
-        });
       }
 
       // 3. MULTI-LAYERED HERO SCROLL PARALLAX SCRUB
@@ -173,54 +155,6 @@ export default function Hero() {
       {/* SUBTLE 3% FILM GRAIN */}
       <div ref={grainRef} className="grain texture-film-grain opacity-[0.03] pointer-events-none z-0" />
 
-      {/* Z-INDEX 30: PERSISTENT NAVIGATION SHELL */}
-      <header
-        ref={navRef}
-        className="fixed top-0 left-0 w-full z-30 py-6 px-[24px] md:px-[48px] lg:px-[80px] flex justify-between items-center pointer-events-none transition-opacity duration-300"
-      >
-        {/* Top Left: STILL STUDIO / DREAMSCAPES Pill Button */}
-        <div className="pointer-events-auto">
-          <button
-            onClick={() => triggerTransition("/work")}
-            data-magnetic
-            className="glass-capsule px-5 py-2.5 rounded-full text-left group focus:outline-none hover:-translate-y-0.5 hover:scale-[1.04] transition-all duration-400 ease-out"
-          >
-            <span className="block text-[10px] md:text-[11px] uppercase tracking-[0.25em] font-medium text-[#151515] font-mono">
-              STILL STUDIO <span className="text-[rgba(21,21,21,0.65)] font-normal">/ DREAMSCAPES</span>
-            </span>
-          </button>
-        </div>
-
-        {/* Top Center: CLIENT & US — UNSEEN STUDIO © 2026 */}
-        <div className="hidden md:flex pointer-events-auto items-center justify-center">
-          <span
-            className="text-[10px] md:text-[11px] uppercase tracking-[0.25em] font-medium text-[rgba(21,21,21,0.75)] font-mono cursor-default"
-          >
-            CLIENT & US — UNSEEN STUDIO © 2026
-          </span>
-        </div>
-
-        {/* Top Right: BACK TO HOME & AUDIO [OFF] */}
-        <nav className="pointer-events-auto flex items-center space-x-3">
-          <button
-            onClick={() => triggerTransition("/")}
-            data-magnetic
-            className="glass-capsule px-5 py-2.5 rounded-full text-[10px] md:text-[11px] uppercase tracking-[0.25em] font-medium text-[#151515] focus:outline-none hover:-translate-y-0.5 hover:scale-[1.04] transition-all duration-400 font-mono"
-          >
-            BACK TO HOME
-          </button>
-
-          <button
-            onClick={() => triggerTransition("/work")}
-            data-magnetic
-            className="glass-capsule px-5 py-2.5 rounded-full flex items-center space-x-2 text-[10px] md:text-[11px] uppercase tracking-[0.25em] text-[#151515] font-medium focus:outline-none hover:-translate-y-0.5 hover:scale-[1.04] transition-all duration-400 font-mono"
-          >
-            <VolumeX className="w-3.5 h-3.5 text-[rgba(21,21,21,0.70)]" />
-            <span className="hidden sm:inline">AUDIO [OFF]</span>
-          </button>
-        </nav>
-      </header>
-
       {/* Z-INDEX 10: HIGH CONTRAST CAMERA WIREFRAME SVG LAYER */}
       <div
         ref={cameraRef}
@@ -236,9 +170,10 @@ export default function Hero() {
         <div className="absolute top-[22%] left-[6%] pointer-events-auto overflow-hidden">
           <h1
             ref={dreamRef}
-            className="font-serif font-light text-[clamp(75px,8.5vw,150px)] leading-[0.85] tracking-[-0.035em] text-[#151515] uppercase inline-block cursor-default"
+            style={getTypographyStyles(workData.titleTypography)}
+            className="font-serif font-light text-[clamp(75px,8.5vw,150px)] leading-[0.85] tracking-[-0.035em] text-[#151515] uppercase inline-block cursor-default transition-all duration-200"
           >
-            DREAM
+            {workData.heroTitleLine1}
           </h1>
         </div>
 
@@ -248,7 +183,7 @@ export default function Hero() {
             ref={slashRef}
             className="font-serif font-light text-[clamp(65px,7.5vw,130px)] leading-none text-[#151515] opacity-70 inline-block transform rotate-[15deg]"
           >
-            /
+            {workData.heroSlash}
           </span>
         </div>
 
@@ -256,9 +191,10 @@ export default function Hero() {
         <div className="absolute top-[54%] right-[7%] pointer-events-auto overflow-hidden">
           <h1
             ref={scapesRef}
-            className="font-serif font-light text-[clamp(75px,8.5vw,150px)] leading-[0.85] tracking-[-0.035em] text-[#151515] uppercase inline-block cursor-default"
+            style={getTypographyStyles(workData.titleTypography)}
+            className="font-serif font-light text-[clamp(75px,8.5vw,150px)] leading-[0.85] tracking-[-0.035em] text-[#151515] uppercase inline-block cursor-default transition-all duration-200"
           >
-            SCAPES
+            {workData.heroTitleLine2}
           </h1>
         </div>
 
@@ -269,21 +205,20 @@ export default function Hero() {
         {/* Bottom Left Overview Teaser */}
         <div className="mb-4 sm:mb-0">
           <span className="text-[10px] md:text-[11px] uppercase tracking-[0.25em] text-[rgba(21,21,21,0.75)] font-mono block mb-1">
-            PROJECT OVERVIEW
+            {workData.overviewTag}
           </span>
           <p className="text-[15px] md:text-[16px] leading-[1.75] text-[#151515] max-w-[480px] font-sans font-normal">
-            An architectural visual monograph exploring concrete permanence and atmospheric transience across Kyoto and Reykjavik.
+            {workData.overviewDescription}
           </p>
         </div>
 
         {/* Bottom Right: VOLUME ONE */}
         <div className="text-right">
           <span className="text-[10px] md:text-[11px] uppercase tracking-[0.25em] text-[rgba(21,21,21,0.75)] font-mono block mb-1">
-            STILL STUDIO © 2026
+            {workData.volumeTag}
           </span>
           <div className="font-serif text-[clamp(26px,2.2vw,50px)] text-[#151515] uppercase font-light tracking-[0.08em] leading-none">
-            <span>VOLUME </span>
-            <span className="italic">ONE</span>
+            {workData.volumeTitle}
           </div>
         </div>
       </div>

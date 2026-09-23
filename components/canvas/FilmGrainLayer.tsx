@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useSiteConfig } from "@/lib/admin/siteConfigStore";
 
 export default function FilmGrainLayer() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const { config } = useSiteConfig();
+  const grainOpacity = config.effects.grainOpacity;
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -82,8 +85,8 @@ export default function FilmGrainLayer() {
   return (
     <canvas
       ref={canvasRef}
-      className="fixed inset-0 pointer-events-none z-[99990] opacity-4 mix-blend-multiply"
-      style={{ opacity: 0.035 }}
+      className="fixed inset-0 pointer-events-none z-[99990] mix-blend-multiply transition-opacity duration-300"
+      style={{ opacity: grainOpacity }}
     />
   );
 }

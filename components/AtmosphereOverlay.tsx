@@ -3,10 +3,13 @@
 import { useEffect, useRef } from "react";
 import FloatingParticlesCanvas from "./FloatingParticlesCanvas";
 import ThreeCanvasEngine from "./canvas/ThreeCanvasEngine";
+import { useSiteConfig } from "@/lib/admin/siteConfigStore";
 
 export default function AtmosphereOverlay() {
   const fog1Ref = useRef<HTMLDivElement>(null);
   const lightRaysRef = useRef<HTMLDivElement>(null);
+  const { config } = useSiteConfig();
+  const { vignetteIntensity, fogOpacity } = config.effects;
 
   useEffect(() => {
     let animationFrameId: number;
@@ -22,9 +25,9 @@ export default function AtmosphereOverlay() {
       }
 
       if (lightRaysRef.current) {
-        const opacity = 0.015 + Math.sin(time * 0.5) * 0.008;
+        const opacity = fogOpacity + Math.sin(time * 0.5) * 0.008;
         const rotate = Math.sin(time * 0.2) * 3;
-        lightRaysRef.current.style.opacity = opacity.toString();
+        lightRaysRef.current.style.opacity = Math.max(0, opacity).toString();
         lightRaysRef.current.style.transform = `rotate(${rotate}deg)`;
       }
 
@@ -34,7 +37,7 @@ export default function AtmosphereOverlay() {
     animationFrameId = requestAnimationFrame(animateAtmosphere);
 
     return () => cancelAnimationFrame(animationFrameId);
-  }, []);
+  }, [fogOpacity]);
 
   return (
     <>
@@ -49,11 +52,12 @@ export default function AtmosphereOverlay() {
       {/* Subtle Film Grain */}
       <div className="texture-film-grain opacity-[0.02] pointer-events-none" />
 
-      {/* Extremely Subtle Moving Atmosphere (Opacity 1.5% - Zero White Wash Overlay) */}
+      {/* Extremely Subtle Moving Atmosphere (Opacity controlled via config) */}
       <div
         ref={fog1Ref}
-        className="fixed inset-0 pointer-events-none z-[25] opacity-[0.015] filter blur-[100px]"
+        className="fixed inset-0 pointer-events-none z-[25] filter blur-[100px] transition-opacity duration-500"
         style={{
+          opacity: fogOpacity,
           background: "radial-gradient(circle at 40% 30%, rgba(200,195,185,0.4) 0%, transparent 60%)",
         }}
       />
@@ -61,14 +65,19 @@ export default function AtmosphereOverlay() {
       {/* Subtle Light Ray Drift */}
       <div
         ref={lightRaysRef}
-        className="fixed -top-[20%] -left-[20%] w-[140vw] h-[140vh] pointer-events-none z-[26] opacity-[0.015] transition-transform duration-1000"
+        className="fixed -top-[20%] -left-[20%] w-[140vw] h-[140vh] pointer-events-none z-[26] transition-transform duration-1000"
         style={{
+          opacity: fogOpacity,
           background: "linear-gradient(135deg, rgba(240,235,225,0.4) 0%, rgba(240,235,225,0.05) 40%, transparent 80%)",
         }}
       />
 
       {/* Vignette Layer for Deep Shadow Corners */}
-      <div className="texture-vignette opacity-40 pointer-events-none" />
+      <div
+        className="texture-vignette pointer-events-none transition-opacity duration-300"
+        style={{ opacity: vignetteIntensity * 2 }}
+      />
     </>
   );
 }
+

@@ -43,7 +43,7 @@ html, body {
   font-weight: 300;
   margin: 0;
   padding: 0;
-  overflow-x: hidden;
+  overflow-x: clip;
   text-rendering: geometricPrecision;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -391,5 +391,265 @@ html.lenis, html.lenis body {
   .portfolio-page .contact-meta, .portfolio-page .footer-meta { flex-direction: column; gap: 10px; }
   .portfolio-page .viewer-image { width: 88vw; height: 68vh; }
 }
+
+/* ---- IMMERSIVE GARDEN FILM PAGE STYLES -------------------------------- */
+.font-serif-luxury {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+.font-serif-headline {
+  font-family: 'Playfair Display', 'Newsreader', 'Cormorant Garamond', Georgia, serif;
+  font-feature-settings: 'lnum', 'pnum';
+}
+.font-display-cinzel {
+  font-family: 'Cinzel', serif;
+}
+
+/* Subtle, refined architectural relief highlights */
+.relief-convex {
+  background-color: #ECE8E0;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.04), -2px -2px 6px rgba(255, 255, 255, 0.8);
+}
+.relief-card {
+  background-color: #ECE8E0;
+  box-shadow: 2px 3px 8px rgba(0, 0, 0, 0.04), -2px -2px 6px rgba(255, 255, 255, 0.85);
+}
+.relief-card-hover {
+  background-color: #ECE8E0;
+  box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.04), -2px -2px 6px rgba(255, 255, 255, 0.8);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.relief-card-hover:hover {
+  box-shadow: 4px 6px 14px rgba(0, 0, 0, 0.06), -3px -3px 8px rgba(255, 255, 255, 0.95);
+  transform: translateY(-2px);
+}
+.relief-concave {
+  background-color: #ECE8E0;
+  box-shadow: inset 2px 2px 5px rgba(0, 0, 0, 0.05), inset -2px -2px 5px rgba(255, 255, 255, 0.8);
+}
+.relief-well {
+  background-color: #ECE8E0;
+  box-shadow: inset 3px 3px 8px rgba(0, 0, 0, 0.06), inset -3px -3px 8px rgba(255, 255, 255, 0.85);
+}
+.relief-pill {
+  background-color: #ECE8E0;
+  box-shadow: 1px 1px 3px rgba(0, 0, 0, 0.04), -1px -1px 3px rgba(255, 255, 255, 0.75);
+}
+.relief-pill-active {
+  background-color: #ECE8E0;
+  box-shadow: inset 1px 1px 3px rgba(0, 0, 0, 0.08), inset -1px -1px 3px rgba(255, 255, 255, 0.85);
+}
+.architectural-divider {
+  background: linear-gradient(to bottom, #222222 0%, rgba(34, 34, 34, 0.2) 60%, transparent 100%);
+}
+.plaster-grain {
+  background-image: radial-gradient(rgba(0, 0, 0, 0.02) 1px, transparent 0);
+  background-size: 24px 24px;
+}
+.global-bg-container {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.global-bg-img {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  height: 100vh;
+  object-fit: cover;
+  display: block;
+  pointer-events: none;
+}
+.global-bg-base {
+  z-index: 1;
+  opacity: 0.02;
+  transition: opacity 0.5s ease;
+}
+.global-bg-auto-reveal {
+  z-index: 2;
+  opacity: 0;
+  will-change: opacity, mask-image, -webkit-mask-image;
+  pointer-events: none;
+}
+.global-bg-cursor-reveal {
+  z-index: 5;
+  opacity: 0;
+  filter: contrast(1.05) brightness(1.02);
+  will-change: mask-image, -webkit-mask-image, opacity;
+  pointer-events: none;
+}
+
+/* ============================================================
+   KRISHNA PHOTOGRAPHY ARCHIVAL GALLERY STYLES & ANIMATIONS
+   ============================================================ */
+
+/* Mouse cursor visibility override for Krishna pages */
+.krishna-page,
+.krishna-page *,
+.krishna-page *:before,
+.krishna-page *:after {
+  cursor: default !important;
+}
+.krishna-page button,
+.krishna-page a,
+.krishna-page [role="button"],
+.krishna-page .cursor-pointer,
+.krishna-page .group {
+  cursor: pointer !important;
+}
+.krishna-page input,
+.krishna-page textarea,
+.krishna-page select {
+  cursor: text !important;
+}
+
+/* Dynamic Floating & Photographic Movement Animations */
+@keyframes dynamicFloat1 {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  25% { transform: translate3d(4px, -12px, 0) rotate(0.5deg); }
+  50% { transform: translate3d(-3px, -18px, 0) rotate(-0.3deg); }
+  75% { transform: translate3d(3px, -8px, 0) rotate(0.3deg); }
+}
+
+@keyframes dynamicFloat2 {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  30% { transform: translate3d(-6px, 14px, 0) rotate(-0.6deg); }
+  60% { transform: translate3d(4px, 8px, 0) rotate(0.4deg); }
+  85% { transform: translate3d(-3px, 16px, 0) rotate(-0.2deg); }
+}
+
+@keyframes dynamicFloat3 {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  35% { transform: translate3d(6px, -14px, 0) rotate(-0.5deg); }
+  70% { transform: translate3d(-5px, -5px, 0) rotate(0.4deg); }
+}
+
+@keyframes dynamicFloat4 {
+  0%, 100% { transform: translate3d(0, 0, 0) rotate(0deg); }
+  28% { transform: translate3d(5px, 15px, 0) rotate(0.6deg); }
+  65% { transform: translate3d(-4px, 6px, 0) rotate(-0.4deg); }
+}
+
+/* Subtle Continuous Photographic Ken Burns / Drift */
+@keyframes photoDrift1 {
+  0%, 100% { transform: scale(1) translate(0%, 0%); }
+  50% { transform: scale(1.05) translate(-1.2%, -0.8%); }
+}
+
+@keyframes photoDrift2 {
+  0%, 100% { transform: scale(1.04) translate(0.8%, 0%); }
+  50% { transform: scale(1.01) translate(-0.8%, 1%); }
+}
+
+@keyframes photoDrift3 {
+  0%, 100% { transform: scale(1.02) translate(-0.6%, 0.8%); }
+  50% { transform: scale(1.06) translate(1%, -0.6%); }
+}
+
+.animate-float-1 {
+  animation: dynamicFloat1 7.5s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  will-change: transform;
+}
+
+.animate-float-2 {
+  animation: dynamicFloat2 8.8s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  will-change: transform;
+}
+
+.animate-float-3 {
+  animation: dynamicFloat3 9.6s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  will-change: transform;
+}
+
+.animate-float-4 {
+  animation: dynamicFloat4 8.2s cubic-bezier(0.45, 0.05, 0.55, 0.95) infinite;
+  will-change: transform;
+}
+
+.animate-photo-drift-1 {
+  animation: photoDrift1 16s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-photo-drift-2 {
+  animation: photoDrift2 20s ease-in-out infinite;
+  will-change: transform;
+}
+
+.animate-photo-drift-3 {
+  animation: photoDrift3 18s ease-in-out infinite;
+  will-change: transform;
+}
+
+.preserve-3d {
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+.perspective-1400 {
+  perspective: 1400px;
+}
+
+.perspective-1600 {
+  perspective: 1600px;
+}
+
+/* Tactile Fine Architectural Stucco Plaster Wall Texture */
+.plaster-wall-base {
+  background-color: #E6E5E0;
+  background-image: 
+    radial-gradient(ellipse 90% 80% at 50% 50%, #ECEBE7 0%, #E3E1DC 70%, #DBD9D3 100%);
+}
+
+.stucco-texture {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 500 500' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='stucco'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.045' numOctaves='5' result='noise'/%3E%3CfeDiffuseLighting in='noise' lighting-color='%23FAF8F5' surfaceScale='1.6' result='light'%3E%3CfeDistantLight azimuth='115' elevation='58'/%3E%3C/feDiffuseLighting%3E%3CfeBlend mode='multiply' in='SourceGraphic' in2='light'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23stucco)' opacity='0.42'/%3E%3C/svg%3E");
+}
+
+.stucco-grain {
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='grain'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23grain)' opacity='0.04' mix-blend-mode='multiply'/%3E%3C/svg%3E");
+}
+
+.window-shadow-layer {
+  background: 
+    repeating-linear-gradient(
+      -36deg,
+      rgba(40, 38, 36, 0) 0px,
+      rgba(40, 38, 36, 0) 90px,
+      rgba(50, 48, 44, 0.055) 160px,
+      rgba(35, 32, 28, 0.09) 230px,
+      rgba(50, 48, 44, 0.045) 300px,
+      rgba(40, 38, 36, 0) 380px
+    ),
+    radial-gradient(ellipse 45% 25% at 28% 30%, rgba(30, 28, 25, 0.085) 0%, transparent 75%),
+    radial-gradient(ellipse 55% 35% at 45% 65%, rgba(30, 28, 25, 0.075) 0%, transparent 80%),
+    radial-gradient(ellipse 40% 30% at 75% 20%, rgba(30, 28, 25, 0.065) 0%, transparent 75%),
+    radial-gradient(ellipse 50% 40% at 15% 75%, rgba(30, 28, 25, 0.08) 0%, transparent 80%);
+}
+
+.plaster-vignette {
+  box-shadow: inset 0 0 120px 30px rgba(70, 65, 60, 0.14);
+}
+
+/* Contact & Reviews Utility Classes */
+.font-editorial {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+}
+
+.font-grotesk {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.font-mono-code {
+  font-family: 'Space Grotesk', monospace;
+}
+
+.bg-paper-grain {
+  background-image: radial-gradient(#D7D7D2 0.75px, transparent 0.75px);
+  background-size: 24px 24px;
+}
+
 
 

@@ -70,11 +70,19 @@ export default function ThreeCanvasEngine() {
     `;
 
     const createShader = (gl: WebGLRenderingContext, type: number, source: string) => {
-      const shader = gl.createShader(type);
-      if (!shader) return null;
-      gl.shaderSource(shader, source);
-      gl.compileShader(shader);
-      return shader;
+      try {
+        const shader = gl.createShader(type);
+        if (!shader) return null;
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+          gl.deleteShader(shader);
+          return null;
+        }
+        return shader;
+      } catch {
+        return null;
+      }
     };
 
     const vertexShader = createShader(gl, gl.VERTEX_SHADER, vsSource);
@@ -86,6 +94,9 @@ export default function ThreeCanvasEngine() {
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, fragmentShader);
     gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      return;
+    }
     gl.useProgram(program);
 
     const positionBuffer = gl.createBuffer();
@@ -122,14 +133,19 @@ export default function ThreeCanvasEngine() {
         return;
       }
 
-      const currentTime = (performance.now() - startTime) * 0.001;
+      try {
+        if (gl.isContextLost && gl.isContextLost()) return;
+        const currentTime = (performance.now() - startTime) * 0.001;
 
-      gl.viewport(0, 0, width, height);
-      gl.uniform2f(resLoc, width, height);
-      gl.uniform1f(timeLoc, currentTime);
-      gl.uniform2f(mouseLoc, mouseX, mouseY);
+        gl.viewport(0, 0, width, height);
+        gl.uniform2f(resLoc, width, height);
+        gl.uniform1f(timeLoc, currentTime);
+        gl.uniform2f(mouseLoc, mouseX, mouseY);
 
-      gl.drawArrays(gl.TRIANGLES, 0, 6);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+      } catch {
+        return;
+      }
 
       animationFrameId = requestAnimationFrame(render);
     };

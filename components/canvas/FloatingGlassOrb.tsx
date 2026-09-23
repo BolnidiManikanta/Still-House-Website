@@ -41,7 +41,7 @@ export default function FloatingGlassOrb() {
     };
 
     // Continuous floating breathing animation
-    gsap.to(orb, {
+    const tween = gsap.to(orb, {
       y: "-=15",
       duration: 3.5,
       ease: "sine.inOut",
@@ -53,6 +53,7 @@ export default function FloatingGlassOrb() {
     animId = requestAnimationFrame(render);
 
     return () => {
+      tween.kill();
       window.removeEventListener("mousemove", handleMouseMove);
       cancelAnimationFrame(animId);
     };

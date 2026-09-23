@@ -3,6 +3,8 @@
 import Image from "next/image"
 import type { ReactNode } from "react"
 import { usePageTransition } from "@/components/PageTransition"
+import { useSiteConfig } from "@/lib/admin/siteConfigStore"
+import { getTypographyStyles, getImageFilterStyles } from "@/lib/admin/styleHelpers"
 
 /* ------------------------------ primitives ------------------------------ */
 
@@ -61,12 +63,14 @@ function Media({
   speed = 12,
   className = "",
   priority = false,
+  customStyle,
 }: {
   src: string
   alt: string
   speed?: number
   className?: string
   priority?: boolean
+  customStyle?: React.CSSProperties
 }) {
   return (
     <figure
@@ -81,7 +85,9 @@ function Media({
           fill
           sizes="(max-width: 768px) 100vw, 60vw"
           priority={priority}
-          className="pr-media-img object-cover"
+          unoptimized={typeof src === "string" && src.startsWith("data:")}
+          style={customStyle}
+          className="pr-media-img object-cover transition-all duration-300"
         />
       </div>
     </figure>
@@ -92,6 +98,8 @@ function Media({
 
 export default function Sections() {
   const { triggerTransition } = usePageTransition()
+  const { config } = useSiteConfig()
+  const proj = config.project
 
   return (
     <div className="relative z-20">
@@ -106,7 +114,7 @@ export default function Sections() {
             </Label>
           </div>
           <div className="col-span-6 flex justify-end md:col-span-8">
-            <Label>2026</Label>
+            <Label>{proj.locationYear || "2026"}</Label>
           </div>
         </Grid>
 
@@ -114,11 +122,16 @@ export default function Sections() {
           <div className="col-span-12 md:col-span-11">
             <h1 data-reveal="lines" className="font-serif font-light leading-[0.86] tracking-[-0.03em]">
               <span className="block overflow-hidden">
-                <span className="pr-line-inner block text-[14vw] md:text-[13vw]">Constellation</span>
+                <span
+                  style={getTypographyStyles(proj.titleTypography)}
+                  className="pr-line-inner block text-[14vw] md:text-[13vw] transition-all duration-200"
+                >
+                  {proj.title}
+                </span>
               </span>
               <span className="block overflow-hidden">
                 <span className="pr-line-inner block pl-[0.02em] text-[9vw] italic md:text-[6vw]">
-                  a study in soft matter
+                  {proj.eyebrow}
                 </span>
               </span>
             </h1>
@@ -148,12 +161,15 @@ export default function Sections() {
             <Statement
               className="text-[7vw] md:text-[3.6vw]"
               lines={[
-                "An environment that behaves",
-                "like a material — inflating,",
-                "settling, and catching light",
-                "as you move through it.",
+                proj.statementLine1 || "An environment that behaves",
+                proj.statementLine2 || "like a material — catching light",
               ]}
             />
+            {proj.narrativeBody && (
+              <p className="mt-8 font-sans text-[16px] leading-relaxed opacity-80 max-w-xl">
+                {proj.narrativeBody}
+              </p>
+            )}
           </div>
         </Grid>
       </section>
@@ -162,16 +178,17 @@ export default function Sections() {
       <section className="py-[8vh]">
         <div className="px-4 md:px-6">
           <Media
-            src="/media/plaster-relief.png"
-            alt="Abstract white plaster relief with soft organic folds"
+            src={proj.primaryImage || "/media/plaster-relief.png"}
+            alt={proj.title || "Project plate"}
             speed={16}
             priority
+            customStyle={getImageFilterStyles(proj.primaryImageStyle)}
             className="h-[78vh] w-full md:h-[92vh]"
           />
         </div>
         <Grid className="mt-4">
           <div className="col-span-6 md:col-span-4">
-            <Label>Plate 01 — Soft Matter</Label>
+            <Label>Plate 01 — {proj.title}</Label>
           </div>
           <div className="col-span-6 flex justify-end md:col-span-8">
             <Label>Studio capture · 01/06</Label>
@@ -184,9 +201,10 @@ export default function Sections() {
         <Grid className="items-center gap-y-12">
           <div className="col-span-12 md:col-span-5">
             <Media
-              src="/media/ceramic-form.png"
-              alt="Smooth off-white ceramic sculpture resembling a soft knot"
+              src={proj.secondaryImage || "/media/ceramic-form.png"}
+              alt="Detail of spatial volume"
               speed={20}
+              customStyle={getImageFilterStyles(proj.secondaryImageStyle)}
               className="aspect-[4/5] w-full"
             />
           </div>

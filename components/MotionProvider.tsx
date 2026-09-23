@@ -4,7 +4,6 @@ import React, { createContext, useContext, useEffect, useRef } from "react";
 import Lenis from "lenis";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import CustomCursor from "./CustomCursor";
 
 interface MotionContextType {
   lenis: Lenis | null;
@@ -87,7 +86,6 @@ export default function MotionProvider({ children }: { children: React.ReactNode
         getScrollValues: () => scrollValuesRef.current,
       }}
     >
-      <CustomCursor />
       {children}
     </MotionContext.Provider>
   );

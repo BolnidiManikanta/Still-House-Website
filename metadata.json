@@ -1,0 +1,6 @@
+{
+  "name": "Dreamscapes — Still Studio",
+  "description": "Fine art photography monograph and visual portfolio featuring Unseen Studio Dreamscapes aesthetic with Lenis smooth scrolling, GSAP choreography, and Three.js atmospheric effects.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

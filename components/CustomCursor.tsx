@@ -17,6 +17,7 @@ export default function CustomCursor() {
     // Disable custom cursor on touch/mobile devices
     if (window.matchMedia("(pointer: coarse)").matches) return;
 
+    document.body.classList.add("custom-cursor-active");
     document.body.style.cursor = "none";
 
     let mouseX = window.innerWidth / 2;
@@ -64,8 +65,8 @@ export default function CustomCursor() {
 
     const render = () => {
       if (!isTransitioning) {
-        circleX += (mouseX - circleX) * 0.18;
-        circleY += (mouseY - circleY) * 0.18;
+        circleX += (mouseX - circleX) * 0.13;
+        circleY += (mouseY - circleY) * 0.13;
 
         if (cursorRingRef.current) {
           gsap.set(cursorRingRef.current, {
@@ -86,12 +87,12 @@ export default function CustomCursor() {
         const cursorAttr = target.getAttribute("data-cursor");
         const isImg = target.tagName.toLowerCase() === "img" || target.querySelector("img") !== null;
 
-        if (isImg) {
-          setIsImageHover(true);
-          setCursorText("VIEW");
-        } else if (cursorAttr) {
-          setIsImageHover(false);
+        if (cursorAttr) {
+          setIsImageHover(cursorAttr.includes("VIEW") || cursorAttr.includes("PROJECT"));
           setCursorText(cursorAttr);
+        } else if (isImg) {
+          setIsImageHover(true);
+          setCursorText("VIEW PROJECT ↗");
         } else {
           setIsImageHover(false);
           setCursorText("");
@@ -112,37 +113,41 @@ export default function CustomCursor() {
     window.addEventListener("mouseout", handleMouseOut, { passive: true });
 
     return () => {
+      document.body.classList.remove("custom-cursor-active");
       cancelAnimationFrame(rafId);
       window.removeEventListener("mousemove", onMouseMove);
       window.removeEventListener("mouseover", handleMouseOver);
       window.removeEventListener("mouseout", handleMouseOut);
+      document.body.style.cursor = "auto";
     };
   }, [isTransitioning]);
 
   return (
     <>
+      {/* Normal center dot: ● */}
       <div
         ref={cursorDotRef}
-        className={`fixed top-0 left-0 w-2.5 h-2.5 bg-[#0A0A0A] rounded-full pointer-events-none z-[999999] -translate-x-1/2 -translate-y-1/2 transition-opacity duration-300 ${
-          isTransitioning ? "opacity-0" : "opacity-100"
+        className={`fixed top-0 left-0 w-2 h-2 bg-[#110F0E] rounded-full pointer-events-none z-[999999] -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ${
+          isTransitioning || isImageHover ? "opacity-0 scale-50" : "opacity-100 scale-100"
         }`}
       />
 
+      {/* Outer Circle that morphs into Project Indicator on project hover: ( VIEW PROJECT ↗ ) */}
       <div
         ref={cursorRingRef}
-        className={`fixed top-0 left-0 pointer-events-none z-[999998] -translate-x-1/2 -translate-y-1/2 rounded-full border border-[#0A0A0A]/40 flex items-center justify-center transition-all duration-300 ease-out ${
+        className={`fixed top-0 left-0 pointer-events-none z-[999998] -translate-x-1/2 -translate-y-1/2 rounded-full flex items-center justify-center transition-all duration-300 ease-out will-change-transform ${
           isTransitioning ? "opacity-0 scale-50" : "opacity-100"
         } ${
-          isHovered
-            ? isImageHover
-              ? "w-20 h-20 bg-white/40 backdrop-blur-md border-[#0A0A0A]"
-              : "w-14 h-14 bg-[#0A0A0A]/10 border-[#0A0A0A]"
-            : "w-10 h-10"
+          isImageHover
+            ? "w-[84px] h-[84px] bg-[#110F0E] text-[#F5F2ED] border border-[#110F0E] shadow-md"
+            : isHovered
+            ? "w-11 h-11 bg-[#110F0E]/10 border border-[#110F0E]/40"
+            : "w-7 h-7 border border-[#110F0E]/30 bg-transparent"
         }`}
       >
-        {cursorText && (
-          <span className="text-[9px] uppercase tracking-[0.2em] font-mono text-[#0A0A0A] font-medium">
-            {cursorText}
+        {isImageHover && (
+          <span className="text-[8.5px] uppercase tracking-[0.18em] font-mono text-[#F5F2ED] font-medium text-center px-1.5 select-none leading-tight">
+            VIEW PROJECT ↗
           </span>
         )}
       </div>

@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from 'react'
 import gsap from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import Lenis from 'lenis'
-import { usePageTransition } from '@/components/PageTransition'
 
 const projects = [
   { number: '01', title: 'AFTERLIGHT', place: 'Iceland · 2026', copy: 'The held breath of a landscape before the sun arrives.', image: '/images/afterlight.png' },
@@ -40,7 +39,6 @@ function Preloader() {
 function Reveal({ children, className = '' }: { children: React.ReactNode, className?: string }) { return <div className={`reveal ${className}`}>{children}</div> }
 
 export default function PortfolioExperience() {
-  const { triggerTransition } = usePageTransition()
   const [selected, setSelected] = useState<number | null>(null)
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger)
@@ -69,8 +67,8 @@ export default function PortfolioExperience() {
       <section className="gallery section-pad"><div className="micro label">THE NIGHT ARCHIVE</div><div className="gallery-grid">{gallery.map(([src, cap], i) => <figure className={`gallery-item item-${i}`} key={src}><div className="image-wrap" onClick={() => setSelected(i)}><Image src={src} alt={cap} fill sizes="(max-width: 768px) 90vw, 45vw" /></div><figcaption className="micro">{cap}</figcaption></figure>)}</div></section>
       <section className="about section-pad"><Reveal><h2>I LOOK FOR<br />THE MOMENT<br /><em>BETWEEN</em><br />WHAT IS SEEN<br />AND WHAT IS FELT.</h2></Reveal><div className="about-bottom"><div className="about-image parallax"><div className="image-wrap"><Image src="/images/human-form.png" alt="Black and white portrait by Elena Voss" fill sizes="40vw" /></div></div><div className="about-copy"><p>Light, distance, and the small gestures that make a place feel inhabited. My work lives in the pause between observation and memory.</p><span className="micro">BASED IN REYKJAVÍK<br />AVAILABLE WORLDWIDE</span></div></div></section>
       <section id="contact" className="contact section-pad"><span className="micro">CONTACT / 06</span><Reveal><h2>LET&apos;S MAKE<br /><em>SOMETHING</em><br />WORTH<br />REMEMBERING.</h2></Reveal><a className="contact-link" href="mailto:studio@elenavoss.com">START A CONVERSATION <span>↗</span></a><div className="contact-meta micro"><span>STUDIO@ELENAVOSS.COM</span><span>INSTAGRAM / @ELENAVOSS</span><span>REYKJAVÍK · IS</span></div></section>
-      <footer className="footer section-pad"><button onClick={() => triggerTransition("/work")} className="text-left bg-transparent border-0 p-0 text-inherit cursor-pointer"><span className="micro">NEXT SERIES</span><h2>EXPLORE<br /><em>THE ARCHIVE</em> ↗</h2></button><div className="micro footer-meta"><span>© 2026 ELENA VOSS</span><span>ALL RIGHTS RESERVED</span></div></footer>
+      <footer className="footer section-pad"><div className="micro footer-meta"><span>© 2026 ELENA VOSS</span><span>ALL RIGHTS RESERVED</span></div></footer>
     </main>
-    {selected !== null && <div className="viewer" role="dialog" aria-modal="true" aria-label="Photograph viewer" onClick={() => setSelected(null)}><button aria-label="Close viewer" onClick={() => setSelected(null)}>CLOSE ×</button><div className="viewer-image"><Image src={projects[selected % projects.length].image} alt="Selected photograph" fill sizes="90vw" /></div><div className="viewer-caption micro">{projects[selected % projects.length].title} · {projects[selected % projects.length].place}</div></div>}
+    {selected !== null && <div className="viewer" role="dialog" aria-modal="true" aria-label="Photograph viewer" onClick={() => setSelected(null)}><span className="cursor-pointer" aria-label="Close viewer" onClick={() => setSelected(null)}>CLOSE ×</span><div className="viewer-image"><Image src={projects[selected % projects.length].image} alt="Selected photograph" fill sizes="90vw" /></div><div className="viewer-caption micro">{projects[selected % projects.length].title} · {projects[selected % projects.length].place}</div></div>}
   </>
 }

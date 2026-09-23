@@ -1,12 +1,10 @@
-import { notFound } from "next/navigation";
+import DreamscapesExperience from "@/components/dreamscapes/DreamscapesExperience";
 
-interface PageProps {
-  params: Promise<{
-    slug: string;
-  }>;
+export function generateStaticParams() {
+  return [{ slug: "dreamscapes" }, { slug: "monograph" }];
 }
 
-export default async function WorkSlugPage({ params }: PageProps) {
-  await params;
-  notFound();
+export default function WorkSlugPage() {
+  return <DreamscapesExperience />;
 }
+
