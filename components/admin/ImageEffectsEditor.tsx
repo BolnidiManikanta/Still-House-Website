@@ -103,7 +103,7 @@ export const ImageEffectsEditor: React.FC<ImageEffectsEditorProps> = ({
               type="text"
               value={imageUrl.startsWith("data:") ? "[Local Uploaded Image File Active]" : imageUrl}
               onChange={(e) => onImageChange(e.target.value)}
-              placeholder="https://images.unsplash.com/... or paste image URL"
+              placeholder="https://images.unsplash.com/photo-example or paste image URL"
               className="w-full bg-black/40 border border-white/15 rounded-lg px-3.5 py-2.5 text-xs text-white placeholder-white/30 focus:outline-none focus:border-amber-400 font-mono transition-colors"
             />
           </div>

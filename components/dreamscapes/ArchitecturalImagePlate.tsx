@@ -17,6 +17,7 @@ interface ArchitecturalImagePlateProps {
   parallaxSpeed?: number;
   dataCursor?: string;
   onClick?: () => void;
+  customStyle?: React.CSSProperties;
 }
 
 export default function ArchitecturalImagePlate({
@@ -30,6 +31,7 @@ export default function ArchitecturalImagePlate({
   parallaxSpeed = 24,
   dataCursor = "VIEW PROJECT ↗",
   onClick,
+  customStyle,
 }: ArchitecturalImagePlateProps) {
   const { triggerTransition } = usePageTransition();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -283,7 +285,9 @@ export default function ArchitecturalImagePlate({
             alt={alt}
             fill
             priority={priority}
-            className="object-cover object-center pointer-events-none"
+            unoptimized={typeof src === "string" && src.startsWith("data:")}
+            style={customStyle}
+            className="object-cover object-center pointer-events-none transition-all duration-300"
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           />
         </div>

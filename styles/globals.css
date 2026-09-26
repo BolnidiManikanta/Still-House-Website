@@ -4,9 +4,17 @@
 @tailwind components;
 @tailwind utilities;
 
-/* FORCE HIDE DEFAULT BROWSER CURSOR EVERYWHERE FOR CUSTOM CURSOR VISIBILITY */
-*, *::before, *::after, button, a, input, select, textarea {
-  cursor: none !important;
+/* CURSOR STYLING: GUARANTEE NATIVE MOUSE POINTER IS ALWAYS VISIBLE AND FUNCTIONAL EVERYWHERE */
+html, body {
+  cursor: auto !important;
+}
+
+input, textarea, select, [contenteditable] {
+  cursor: text !important;
+}
+
+button, a, [role="button"], [data-clickable="true"], input[type="submit"], input[type="button"], label, select {
+  cursor: pointer !important;
 }
 
 @font-face {

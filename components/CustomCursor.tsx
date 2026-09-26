@@ -11,14 +11,25 @@ export default function CustomCursor() {
   const [isHovered, setIsHovered] = useState(false);
   const [isImageHover, setIsImageHover] = useState(false);
   const [cursorText, setCursorText] = useState("");
+  const [disabled, setDisabled] = useState(false);
   const activeMagneticRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    // Disable custom cursor on touch/mobile devices
-    if (window.matchMedia("(pointer: coarse)").matches) return;
+    // Disable custom cursor on touch/mobile devices, in iframes (e.g. preview pane), or on admin
+    const isTouch = window.matchMedia("(pointer: coarse)").matches;
+    const isInIframe = window.self !== window.top;
+    const isAdmin = window.location.pathname.startsWith("/admin");
+
+    if (isTouch || isInIframe || isAdmin) {
+      setDisabled(true);
+      document.body.classList.remove("custom-cursor-active");
+      document.body.classList.add("in-iframe");
+      document.body.style.cursor = "auto";
+      return;
+    }
 
     document.body.classList.add("custom-cursor-active");
-    document.body.style.cursor = "none";
+    document.body.style.cursor = "auto";
 
     let mouseX = window.innerWidth / 2;
     let mouseY = window.innerHeight / 2;
@@ -121,6 +132,10 @@ export default function CustomCursor() {
       document.body.style.cursor = "auto";
     };
   }, [isTransitioning]);
+
+  if (disabled) {
+    return null;
+  }
 
   return (
     <>

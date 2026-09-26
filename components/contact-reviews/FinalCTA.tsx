@@ -96,7 +96,7 @@ export const FinalCTA: React.FC<FinalCTAProps> = ({ onOpenRatingModal }) => {
       <div className="absolute inset-0 pointer-events-none -z-10 overflow-hidden">
         <img
           ref={bgImageRef}
-          src="https://images.unsplash.com/photo-1541888946425-d0fbb18086f6?auto=format&fit=crop&w=2200&q=80"
+          src="https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=2200&q=80"
           alt="Architectural structure"
           className="w-full h-[120%] object-cover object-center grayscale contrast-105 opacity-15 filter blur-xs"
           style={{ willChange: 'transform' }}

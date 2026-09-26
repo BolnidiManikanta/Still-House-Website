@@ -61,7 +61,7 @@ export const PROJECTS_DATA: Project[] = [
     coverImage: 'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1400&q=80',
     detailImages: [
       'https://images.unsplash.com/photo-1535632066927-ab7c9ab60908?auto=format&fit=crop&w=1200&q=80',
-      'https://images.unsplash.com/photo-1576016770958-e0b2dc9d7ffb?auto=format&fit=crop&w=1200&q=80',
+      'https://images.unsplash.com/photo-1518895949257-7621c3c786d7?auto=format&fit=crop&w=1200&q=80',
     ],
     awards: ['FWA Site of the Month', 'D&AD Wood Pencil', 'Awwwards Developer Award'],
     role: 'Lead Interactive Design, Custom PBR Pipeline, Micro-UI',

@@ -10,9 +10,13 @@ import { usePageTransition } from "@/components/PageTransition";
 import AmbientAudio from "@/components/AmbientAudio";
 import ArchitecturalImagePlate from "./ArchitecturalImagePlate";
 import EditorialTitle from "./EditorialTitle";
+import { useSiteConfig } from "@/lib/admin/siteConfigStore";
+import { getImageFilterStyles } from "@/lib/admin/styleHelpers";
+import { DEFAULT_SITE_CONFIG } from "@/lib/admin/defaultConfig";
 
 export default function DreamscapesExperience() {
   const { triggerTransition } = usePageTransition();
+  const { config } = useSiteConfig();
   const containerRef = useRef<HTMLElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const nextProjectTitleRef = useRef<HTMLHeadingElement>(null);
@@ -23,6 +27,32 @@ export default function DreamscapesExperience() {
   const blueyardHintRef = useRef<HTMLSpanElement>(null);
   const blueyardMaskRef = useRef<HTMLDivElement>(null);
   const [isPlayingAudio] = useState(false);
+
+  const workPlates = config?.work?.plates && config.work.plates.length > 0
+    ? config.work.plates
+    : DEFAULT_SITE_CONFIG.work.plates;
+
+  const getPlate = (idOrIdx: string | number) => {
+    if (typeof idOrIdx === "string") {
+      const found = workPlates.find((p) => p.id === idOrIdx);
+      if (found) return found;
+    }
+    const idx = typeof idOrIdx === "number" ? idOrIdx : 0;
+    return workPlates[idx] || DEFAULT_SITE_CONFIG.work.plates[idx] || DEFAULT_SITE_CONFIG.work.plates[0];
+  };
+
+  const p01 = getPlate("work-plate-01");
+  const p02 = getPlate("work-plate-02");
+  const p03 = getPlate("work-plate-03");
+  const p04 = getPlate("work-plate-04");
+  const p05 = getPlate("work-plate-05");
+  const p06 = getPlate("work-plate-06");
+  const p07 = getPlate("work-plate-07");
+  const p08 = getPlate("work-plate-08");
+  const p09 = getPlate("work-plate-09");
+  const p10 = getPlate("work-plate-10");
+  const p11 = getPlate("work-plate-11");
+  const p12 = getPlate("work-plate-12");
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -243,7 +273,7 @@ export default function DreamscapesExperience() {
   return (
     <main
       ref={containerRef}
-      className="work-page relative w-full bg-[#F5F2ED] min-h-screen text-[#151515] overflow-x-hidden select-none font-sans"
+      className="work-page relative w-full bg-[#F5F2ED] min-h-screen text-[#151515] overflow-x-hidden font-sans"
     >
       {/* Ambient Soundscape */}
       <AmbientAudio isPlaying={isPlayingAudio} />
@@ -273,32 +303,35 @@ export default function DreamscapesExperience() {
         <section className="monograph-scene py-[80px] md:py-[140px] lg:py-[180px] w-full flex flex-col items-center justify-center border-b border-[#151515]/15">
           <div className="w-full flex flex-col md:flex-row items-center justify-between gap-[40px] md:gap-[60px]">
             <ArchitecturalImagePlate
-              src="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1600&q=98"
-              alt="Isolation Reflections Monograph Image 1"
+              src={p01.src}
+              alt={p01.alt}
               className="w-full md:w-[32%]"
               aspectClass="aspect-[3/4]"
               priority
               showWipe
               parallaxSpeed={16}
+              customStyle={getImageFilterStyles(p01.style)}
             />
 
             <ArchitecturalImagePlate
-              src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=98"
-              alt="Isolation Reflections Monograph Image 2"
+              src={p02.src}
+              alt={p02.alt}
               className="w-full md:w-[32%] md:mt-[120px]"
               aspectClass="aspect-[3/4]"
               priority
               parallaxSpeed={24}
+              customStyle={getImageFilterStyles(p02.style)}
             />
 
             <ArchitecturalImagePlate
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1600&q=98"
-              alt="Isolation Reflections Monograph Image 3"
+              src={p03.src}
+              alt={p03.alt}
               className="w-full md:w-[32%] md:-mt-[60px]"
               aspectClass="aspect-[3/4]"
               priority
               showWipe
               parallaxSpeed={18}
+              customStyle={getImageFilterStyles(p03.style)}
             />
           </div>
         </section>
@@ -306,24 +339,25 @@ export default function DreamscapesExperience() {
         {/* SECTION 02 — OVERVIEW (ASYMMETRIC SPLIT LAYOUT WITH ARCHITECTURAL CLIP EXPANSION & EDITORIAL ENTRANCE) */}
         <section className="monograph-scene py-[80px] md:py-[140px] lg:py-[180px] w-full min-h-[85vh] flex flex-col md:flex-row items-center justify-between gap-[6%] border-b border-[#151515]/15 -mt-[100px]">
           <ArchitecturalImagePlate
-            src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2000&q=98"
-            alt="Section 02 Overview Image Left"
+            src={p04.src}
+            alt={p04.alt}
             className="w-full md:w-[46%] mb-12 md:mb-0"
             aspectClass="aspect-[4/5]"
             clipExpansion
             showWipe
             parallaxSpeed={20}
+            customStyle={getImageFilterStyles(p04.style)}
           />
 
           <div className="w-full md:w-[34%] flex flex-col space-y-[32px]">
             <span className="mono-label text-[10px] md:text-[11px] tracking-[0.25em] uppercase text-[#151515]/75 font-mono font-medium block">
-              01 / OVERVIEW
+              {config?.work?.overviewTag || "01 / OVERVIEW"}
             </span>
             <EditorialTitle className="font-serif font-light text-[34px] md:text-[48px] lg:text-[56px] leading-[0.92] tracking-[-0.035em] text-[#151515]">
               Atmospheric Light & Brutalist Geometry
             </EditorialTitle>
             <p className="editorial-desc text-[15px] md:text-[16px] leading-[1.75] font-normal text-[#151515]/90 max-w-[440px]">
-              Volume One examines the intersection between concrete permanence and atmospheric transience across desert plateaus in Kyoto and Reykjavik.
+              {config?.work?.overviewDescription || "Volume One examines the intersection between concrete permanence and atmospheric transience across desert plateaus in Kyoto and Reykjavik."}
             </p>
           </div>
         </section>
@@ -343,33 +377,36 @@ export default function DreamscapesExperience() {
           </div>
 
           <ArchitecturalImagePlate
-            src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=2000&q=98"
-            alt="Section 03 Spatial Study Image Right"
+            src={p05.src}
+            alt={p05.alt}
             className="w-full md:w-[46%]"
             aspectClass="aspect-[4/5]"
             clipExpansion
             showWipe
             parallaxSpeed={20}
+            customStyle={getImageFilterStyles(p05.style)}
           />
         </section>
 
         {/* SECTION 04 — POOLSIDES (TWO-IMAGE STAGGERED EXHIBITION GALLERY WITH OVERLAP) */}
         <section className="monograph-scene py-[80px] md:py-[140px] lg:py-[180px] w-full flex flex-col md:flex-row items-center justify-between gap-[40px] md:gap-[60px] border-b border-[#151515]/15 -mt-[100px]">
           <ArchitecturalImagePlate
-            src="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=2000&q=98"
-            alt="Poolsides Monograph Image 1"
+            src={p06.src}
+            alt={p06.alt}
             className="w-full md:w-[48%]"
             aspectClass="aspect-[4/5]"
             parallaxSpeed={16}
+            customStyle={getImageFilterStyles(p06.style)}
           />
 
           <ArchitecturalImagePlate
-            src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=98"
-            alt="Poolsides Monograph Image 2"
+            src={p07.src}
+            alt={p07.alt}
             className="w-full md:w-[48%] md:mt-[140px]"
             aspectClass="aspect-[4/5]"
             showWipe
             parallaxSpeed={24}
+            customStyle={getImageFilterStyles(p07.style)}
           />
         </section>
 
@@ -391,29 +428,32 @@ export default function DreamscapesExperience() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-[40px] md:gap-[60px]">
             <ArchitecturalImagePlate
-              src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1600&q=98"
-              alt="Section 05 Archive Image 1"
+              src={p08.src}
+              alt={p08.alt}
               className="w-full"
               aspectClass="aspect-[3/4]"
               showWipe
               parallaxSpeed={16}
+              customStyle={getImageFilterStyles(p08.style)}
             />
 
             <ArchitecturalImagePlate
-              src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=98"
-              alt="Section 05 Archive Image 2"
+              src={p09.src}
+              alt={p09.alt}
               className="w-full"
               aspectClass="aspect-[3/4]"
               parallaxSpeed={22}
+              customStyle={getImageFilterStyles(p09.style)}
             />
 
             <ArchitecturalImagePlate
-              src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1600&q=98"
-              alt="Section 05 Archive Image 3"
+              src={p10.src}
+              alt={p10.alt}
               className="w-full"
               aspectClass="aspect-[3/4]"
               showWipe
               parallaxSpeed={18}
+              customStyle={getImageFilterStyles(p10.style)}
             />
           </div>
         </section>
@@ -421,26 +461,28 @@ export default function DreamscapesExperience() {
         {/* SECTION 06 — CENTERED EXHIBITION FEATURE (65VW ASPECT 16/10 WITH CLIP EXPANSION & WIPE) */}
         <section className="monograph-scene py-[80px] md:py-[140px] lg:py-[180px] w-full flex justify-center border-b border-[#151515]/15 -mt-[100px]">
           <ArchitecturalImagePlate
-            src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2600&q=98"
-            alt="Section 06 Centered Feature Image"
+            src={p11.src}
+            alt={p11.alt}
             className="w-full md:w-[65vw]"
             aspectClass="aspect-[16/10]"
             clipExpansion
             showWipe
             parallaxSpeed={22}
+            customStyle={getImageFilterStyles(p11.style)}
           />
         </section>
 
         {/* SECTION 07 — FULL-WIDTH STANDALONE FINAL MONOGRAPH IMAGE */}
         <section className="monograph-scene py-[80px] md:py-[140px] lg:py-[180px] w-full flex justify-center border-b border-[#151515]/15 -mt-[100px]">
           <ArchitecturalImagePlate
-            src="https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=2600&q=98"
-            alt="Section 07 Standalone Final Monograph Image"
+            src={p12.src}
+            alt={p12.alt}
             className="w-full md:w-[70vw]"
             aspectClass="aspect-[16/9]"
             clipExpansion
             showWipe
             parallaxSpeed={24}
+            customStyle={getImageFilterStyles(p12.style)}
           />
         </section>
 

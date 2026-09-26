@@ -32,7 +32,9 @@ import {
 import { useSiteConfig } from "@/lib/admin/siteConfigStore";
 import { TypographyEditor } from "./TypographyEditor";
 import { ImageEffectsEditor } from "./ImageEffectsEditor";
-import { PRESET_IMAGE_GALLERY } from "@/lib/admin/defaultConfig";
+import { PRESET_IMAGE_GALLERY, DEFAULT_SITE_CONFIG } from "@/lib/admin/defaultConfig";
+import { WorkPlateItem } from "@/lib/admin/types";
+import { getImageFilterStyles } from "@/lib/admin/styleHelpers";
 
 export type AdminPageTab = "home" | "work" | "project" | "film" | "krishna" | "contactReviews" | "effects" | "backup";
 export type EditFacet = "matter" | "typography" | "imagery";
@@ -45,6 +47,7 @@ export default function AdminDashboard() {
     updateHomeCuratorial,
     updateHomeNextMonograph,
     updateWork,
+    updateWorkPlate,
     updateProject,
     updateFilm,
     updateKrishna,
@@ -66,6 +69,10 @@ export default function AdminDashboard() {
 
   // Home page sub-section
   const [homeSection, setHomeSection] = useState<"hero" | "curatorial" | "next">("hero");
+
+  // Work page imagery selection
+  const [selectedWorkPlateId, setSelectedWorkPlateId] = useState<string>("work-plate-01");
+  const [workImageryMode, setWorkImageryMode] = useState<"plates" | "hero">("plates");
 
   // PIN gate state
   const [pinInput, setPinInput] = useState("");
@@ -842,15 +849,270 @@ export default function AdminDashboard() {
                 />
               )}
 
-              {activeFacet === "imagery" && (
-                <ImageEffectsEditor
-                  label="Featured Work Specimen Plate &amp; Filters"
-                  imageUrl={config.work.heroImage}
-                  styleValue={config.work.heroImageStyle}
-                  onImageChange={(url) => updateWork({ heroImage: url })}
-                  onStyleChange={(style) => updateWork({ heroImageStyle: style })}
-                />
-              )}
+              {activeFacet === "imagery" && (() => {
+                const workPlates: WorkPlateItem[] = (config.work.plates && config.work.plates.length > 0)
+                  ? config.work.plates
+                  : DEFAULT_SITE_CONFIG.work.plates;
+
+                const currentPlate = workPlates.find((p) => p.id === selectedWorkPlateId) || workPlates[0];
+
+                const applyDistinctEffectsToAll = () => {
+                  const DISTINCT_RECIPES = [
+                    { contrast: 104, brightness: 100, saturation: 96, blur: 0, sepia: 0, grayscale: false, scale: 1.0 },
+                    { contrast: 120, brightness: 94, saturation: 90, blur: 0, sepia: 4, grayscale: false, scale: 1.02 },
+                    { contrast: 126, brightness: 102, saturation: 0, blur: 0, sepia: 0, grayscale: true, scale: 1.0 },
+                    { contrast: 110, brightness: 104, saturation: 112, blur: 0, sepia: 20, grayscale: false, scale: 1.0 },
+                    { contrast: 116, brightness: 98, saturation: 120, blur: 0, sepia: 6, grayscale: false, scale: 1.04 },
+                    { contrast: 108, brightness: 102, saturation: 80, blur: 0, sepia: 0, grayscale: false, scale: 1.0 },
+                    { contrast: 124, brightness: 95, saturation: 108, blur: 0, sepia: 14, grayscale: false, scale: 1.03 },
+                    { contrast: 116, brightness: 100, saturation: 88, blur: 0, sepia: 2, grayscale: false, scale: 1.0 },
+                    { contrast: 112, brightness: 102, saturation: 94, blur: 0, sepia: 26, grayscale: false, scale: 1.0 },
+                    { contrast: 132, brightness: 94, saturation: 0, blur: 0, sepia: 0, grayscale: true, scale: 1.02 },
+                    { contrast: 114, brightness: 100, saturation: 106, blur: 0, sepia: 8, grayscale: false, scale: 1.0 },
+                    { contrast: 118, brightness: 102, saturation: 104, blur: 0, sepia: 16, grayscale: false, scale: 1.0 },
+                  ];
+
+                  const updated = workPlates.map((plate, index) => {
+                    const recipe = DISTINCT_RECIPES[index % DISTINCT_RECIPES.length];
+                    return {
+                      ...plate,
+                      style: {
+                        ...plate.style,
+                        ...recipe,
+                      },
+                    };
+                  });
+
+                  updateWork({ plates: updated });
+                  showToast("12 distinct photographic filter recipes applied across all Work images.");
+                };
+
+                const resetPlatesToDefaults = () => {
+                  updateWork({ plates: DEFAULT_SITE_CONFIG.work.plates });
+                  showToast("Work page images reset to default curated effects.");
+                };
+
+                return (
+                  <div className="space-y-6">
+                    {/* Header Switcher: 12 Monograph Plates vs Work Hero */}
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+                      <div className="flex gap-2">
+                        <button
+                          type="button"
+                          onClick={() => setWorkImageryMode("plates")}
+                          className={`px-3.5 py-1.5 rounded-lg text-xs font-mono uppercase tracking-wider flex items-center gap-2 transition-colors ${
+                            workImageryMode === "plates"
+                              ? "bg-amber-400 text-black font-semibold shadow-sm"
+                              : "bg-white/10 text-white/70 hover:text-white"
+                          }`}
+                        >
+                          <ImageIcon className="w-3.5 h-3.5" />
+                          <span>12 Monograph Image Plates (Individual Effects)</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setWorkImageryMode("hero")}
+                          className={`px-3.5 py-1.5 rounded-lg text-xs font-mono uppercase tracking-wider flex items-center gap-2 transition-colors ${
+                            workImageryMode === "hero"
+                              ? "bg-amber-400 text-black font-semibold shadow-sm"
+                              : "bg-white/10 text-white/70 hover:text-white"
+                          }`}
+                        >
+                          <span>Work Hero Cover</span>
+                        </button>
+                      </div>
+
+                      {workImageryMode === "plates" && (
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={applyDistinctEffectsToAll}
+                            className="px-3 py-1.5 bg-emerald-500/20 hover:bg-emerald-500/30 text-emerald-300 border border-emerald-500/40 rounded-lg text-xs font-mono uppercase tracking-wider flex items-center gap-1.5 transition-colors"
+                            title="Automatically assign 12 distinctly styled effects across each image"
+                          >
+                            <Sparkles className="w-3.5 h-3.5" />
+                            <span>Apply 12 Distinct Effects</span>
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={resetPlatesToDefaults}
+                            className="px-2.5 py-1.5 bg-white/5 hover:bg-white/10 text-white/60 hover:text-white border border-white/10 rounded-lg text-xs font-mono uppercase tracking-wider transition-colors"
+                            title="Reset all 12 images to default monograph styles"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* HERO MODE */}
+                    {workImageryMode === "hero" && (
+                      <ImageEffectsEditor
+                        label="Work Page Hero Cover Specimen"
+                        imageUrl={config.work.heroImage}
+                        styleValue={config.work.heroImageStyle}
+                        onImageChange={(url) => updateWork({ heroImage: url })}
+                        onStyleChange={(style) => updateWork({ heroImageStyle: style })}
+                      />
+                    )}
+
+                    {/* 12 PLATES MODE */}
+                    {workImageryMode === "plates" && (
+                      <div className="space-y-6">
+                        {/* Interactive Selector of 12 Images with Live Filter Preview */}
+                        <div className="bg-[#181818] border border-white/10 rounded-xl p-4 space-y-3">
+                          <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                            <div>
+                              <span className="text-xs font-mono uppercase tracking-widest text-amber-300 font-semibold block">
+                                Select Image to Edit Individual Effects
+                              </span>
+                              <span className="text-[11px] text-white/50 block">
+                                Each image plate has its own unique contrast, brightness, saturation, sepia, blur &amp; black/white settings.
+                              </span>
+                            </div>
+                            <span className="text-[10px] font-mono uppercase tracking-widest bg-white/10 text-white/70 px-2 py-0.5 rounded">
+                              {workPlates.length} Plates Active
+                            </span>
+                          </div>
+
+                          {/* 12 Plates Thumbnail Grid */}
+                          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-2.5 pt-1">
+                            {workPlates.map((plate, idx) => {
+                              const isSelected = plate.id === currentPlate.id;
+                              const effectSummary = plate.style.grayscale
+                                ? "B&W Monolith"
+                                : (plate.style.sepia || 0) > 10
+                                ? `Sepia ${plate.style.sepia}%`
+                                : (plate.style.contrast || 100) > 115
+                                ? `Contrast ${plate.style.contrast}%`
+                                : (plate.style.saturation || 100) > 110
+                                ? `Vivid Sat ${plate.style.saturation}%`
+                                : "Natural Pure";
+
+                              return (
+                                <button
+                                  key={plate.id}
+                                  type="button"
+                                  onClick={() => setSelectedWorkPlateId(plate.id)}
+                                  className={`relative group flex flex-col text-left p-1.5 rounded-lg border transition-all overflow-hidden ${
+                                    isSelected
+                                      ? "bg-amber-400/20 border-amber-400 ring-1 ring-amber-400/50 shadow-md"
+                                      : "bg-black/40 border-white/10 hover:border-white/30 hover:bg-white/5"
+                                  }`}
+                                >
+                                  {/* Thumbnail with Live Filter Preview */}
+                                  <div className="relative aspect-[3/4] w-full rounded overflow-hidden bg-neutral-900 border border-black/30">
+                                    <img
+                                      src={plate.src}
+                                      alt={plate.alt}
+                                      className="w-full h-full object-cover transition-transform duration-300"
+                                      style={getImageFilterStyles(plate.style)}
+                                    />
+                                    <span className="absolute top-1 left-1 px-1.5 py-0.5 rounded bg-black/80 backdrop-blur-xs text-[9px] font-mono text-white/90">
+                                      #{idx + 1}
+                                    </span>
+                                    {isSelected && (
+                                      <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-amber-400 ring-2 ring-black" />
+                                    )}
+                                  </div>
+
+                                  <div className="mt-1.5 space-y-0.5">
+                                    <span className="text-[10px] font-mono text-white/90 truncate block font-medium leading-tight">
+                                      {plate.title.replace(/^\d+\s*\/\s*/, "")}
+                                    </span>
+                                    <div className="flex items-center justify-between text-[9px] font-mono text-white/40">
+                                      <span className="truncate">{plate.section.split("—")[0]}</span>
+                                      <span className={`px-1 rounded text-[8px] ${
+                                        plate.style.grayscale
+                                          ? "bg-white/20 text-white"
+                                          : (plate.style.sepia || 0) > 10
+                                          ? "bg-amber-900/60 text-amber-200"
+                                          : "bg-white/10 text-white/60"
+                                      }`}>
+                                        {effectSummary}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </div>
+
+                        {/* Selected Plate Metadata & Filter Controls */}
+                        <div className="bg-[#181818] border border-white/10 rounded-xl p-5 space-y-4">
+                          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 border-b border-white/10 pb-3">
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="text-xs font-mono uppercase tracking-widest text-amber-400 font-semibold">
+                                  Currently Editing: {currentPlate.title}
+                                </span>
+                                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-white/70">
+                                  {currentPlate.section}
+                                </span>
+                              </div>
+                              <span className="text-[11px] text-white/50 block mt-0.5">
+                                Adjusting filters and scale below affects ONLY this specific photograph.
+                              </span>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const defaultVersion = DEFAULT_SITE_CONFIG.work.plates.find((p) => p.id === currentPlate.id);
+                                if (defaultVersion) {
+                                  updateWorkPlate(currentPlate.id, { style: defaultVersion.style, src: defaultVersion.src });
+                                  showToast(`Reset ${currentPlate.title} to default.`);
+                                }
+                              }}
+                              className="px-2.5 py-1 text-xs font-mono text-white/60 hover:text-white border border-white/10 rounded hover:bg-white/5 flex items-center gap-1.5 transition-colors"
+                            >
+                              <RotateCcw className="w-3 h-3" />
+                              <span>Reset This Image</span>
+                            </button>
+                          </div>
+
+                          {/* Plate Title and Alt Text Inputs */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-mono uppercase text-white/50">
+                                Plate Display Label
+                              </label>
+                              <input
+                                type="text"
+                                value={currentPlate.title}
+                                onChange={(e) => updateWorkPlate(currentPlate.id, { title: e.target.value })}
+                                className="w-full bg-black/40 border border-white/15 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-400"
+                              />
+                            </div>
+                            <div className="space-y-1">
+                              <label className="text-[10px] font-mono uppercase text-white/50">
+                                Image Alt / Architectural Specimen Description
+                              </label>
+                              <input
+                                type="text"
+                                value={currentPlate.alt}
+                                onChange={(e) => updateWorkPlate(currentPlate.id, { alt: e.target.value })}
+                                className="w-full bg-black/40 border border-white/15 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-400"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Live Image Effects Editor for this plate */}
+                          <ImageEffectsEditor
+                            label={`Fine-tune Effects for Plate #${workPlates.findIndex(p => p.id === currentPlate.id) + 1}`}
+                            imageUrl={currentPlate.src}
+                            styleValue={currentPlate.style}
+                            onImageChange={(newUrl) => updateWorkPlate(currentPlate.id, { src: newUrl })}
+                            onStyleChange={(newStyle) => updateWorkPlate(currentPlate.id, { style: { ...currentPlate.style, ...newStyle } })}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           )}
 

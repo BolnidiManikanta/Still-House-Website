@@ -25,6 +25,7 @@ yarn-error.log*
 # vercel & netlify cache
 .vercel
 .netlify
+bun.lock*
 
 # typescript
 *.tsbuildinfo

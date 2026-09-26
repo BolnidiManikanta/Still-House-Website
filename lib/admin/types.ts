@@ -89,6 +89,15 @@ export interface HomeConfig {
   nextMonograph: HomeScene07NextConfig;
 }
 
+export interface WorkPlateItem {
+  id: string; // e.g. "plate-01"
+  title: string; // e.g. "01 / Isolation Reflections (Left)"
+  section: string; // e.g. "Section 01 — Isolation Reflections"
+  src: string;
+  alt: string;
+  style: Partial<ImageCustomStyleConfig>;
+}
+
 export interface WorkConfig {
   heroTitleLine1: string; // "DREAM"
   heroTitleLine2: string; // "SCAPES"
@@ -101,6 +110,7 @@ export interface WorkConfig {
   heroPlateTitle: string; // "KYOTO REYKJAVIK DUALITY"
   titleTypography?: TypographyConfig;
   heroImageStyle?: Partial<ImageCustomStyleConfig>;
+  plates: WorkPlateItem[];
 }
 
 export interface ProjectConfig {

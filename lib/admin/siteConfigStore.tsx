@@ -6,6 +6,7 @@ import {
   GlobalEffectsConfig,
   HomeConfig,
   WorkConfig,
+  WorkPlateItem,
   ProjectConfig,
   FilmConfig,
   KrishnaConfig,
@@ -24,6 +25,7 @@ interface SiteConfigContextType {
   updateHomeCuratorial: (curatorialUpdates: Partial<HomeConfig["curatorial"]>) => void;
   updateHomeNextMonograph: (nextUpdates: Partial<HomeConfig["nextMonograph"]>) => void;
   updateWork: (workUpdates: Partial<WorkConfig>) => void;
+  updateWorkPlate: (plateId: string, updates: Partial<WorkPlateItem>) => void;
   updateProject: (projectUpdates: Partial<ProjectConfig>) => void;
   updateFilm: (filmUpdates: Partial<FilmConfig>) => void;
   updateKrishna: (krishnaUpdates: Partial<KrishnaConfig>) => void;
@@ -70,7 +72,11 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
-        const parsed = JSON.parse(stored);
+        // Sanitize broken/404 image URLs in previously saved configs
+        const sanitized = stored
+          .replaceAll('1541888946425-d0fbb186c5f7', '1509316975850-ff9c5deb0cd9')
+          .replaceAll('1541888946425-d0fbb18086f6', '1509316975850-ff9c5deb0cd9');
+        const parsed = JSON.parse(sanitized);
         // Deep merge with defaults so newly introduced keys are never undefined
         setConfig({
           effects: { ...DEFAULT_SITE_CONFIG.effects, ...(parsed.effects || {}) },
@@ -84,6 +90,19 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
             ...(parsed.work || {}),
             titleTypography: { ...DEFAULT_SITE_CONFIG.work.titleTypography, ...(parsed.work?.titleTypography || {}) },
             heroImageStyle: { ...DEFAULT_SITE_CONFIG.work.heroImageStyle, ...(parsed.work?.heroImageStyle || {}) },
+            plates:
+              parsed.work?.plates && parsed.work.plates.length > 0
+                ? DEFAULT_SITE_CONFIG.work.plates.map((defaultPlate, idx) => {
+                    const saved = parsed.work.plates.find((p: any) => p.id === defaultPlate.id) || parsed.work.plates[idx];
+                    return saved
+                      ? {
+                          ...defaultPlate,
+                          ...saved,
+                          style: { ...defaultPlate.style, ...(saved.style || {}) },
+                        }
+                      : defaultPlate;
+                  })
+                : DEFAULT_SITE_CONFIG.work.plates,
           },
           project: {
             ...DEFAULT_SITE_CONFIG.project,
@@ -223,6 +242,30 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
     [config, persist]
   );
 
+  const updateWorkPlate = useCallback(
+    (plateId: string, updates: Partial<WorkPlateItem>) => {
+      const currentPlates = config.work.plates || DEFAULT_SITE_CONFIG.work.plates;
+      const updatedPlates = currentPlates.map((plate) => {
+        if (plate.id === plateId) {
+          return {
+            ...plate,
+            ...updates,
+            style: updates.style ? { ...plate.style, ...updates.style } : plate.style,
+          };
+        }
+        return plate;
+      });
+      persist({
+        ...config,
+        work: {
+          ...config.work,
+          plates: updatedPlates,
+        },
+      });
+    },
+    [config, persist]
+  );
+
   const updateProject = useCallback(
     (projectUpdates: Partial<ProjectConfig>) => {
       persist({
@@ -280,7 +323,10 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
   const importConfig = useCallback(
     (jsonString: string): { success: boolean; message: string } => {
       try {
-        const parsed = JSON.parse(jsonString);
+        const sanitized = jsonString
+          .replaceAll('1541888946425-d0fbb186c5f7', '1509316975850-ff9c5deb0cd9')
+          .replaceAll('1541888946425-d0fbb18086f6', '1509316975850-ff9c5deb0cd9');
+        const parsed = JSON.parse(sanitized);
         if (!parsed || typeof parsed !== "object") {
           return { success: false, message: "Invalid JSON format: must be an object" };
         }
@@ -350,6 +396,7 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
         updateHomeCuratorial,
         updateHomeNextMonograph,
         updateWork,
+        updateWorkPlate,
         updateProject,
         updateFilm,
         updateKrishna,

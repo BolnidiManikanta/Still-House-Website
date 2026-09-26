@@ -96,7 +96,7 @@ function Media({
 
 /* ------------------------------- sections ------------------------------- */
 
-export default function Sections() {
+export default function Sections({ slug }: { slug?: string } = {}) {
   const { triggerTransition } = usePageTransition()
   const { config } = useSiteConfig()
   const proj = config.project
