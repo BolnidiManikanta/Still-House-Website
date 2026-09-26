@@ -7,6 +7,7 @@ import FilmGrainLayer from "@/components/canvas/FilmGrainLayer";
 import PageTransition from "@/components/PageTransition";
 import { SiteConfigProvider } from "@/lib/admin/siteConfigStore";
 import AdminFloatingBar from "@/components/admin/AdminFloatingBar";
+import PublishedVisualOverrides from "@/components/admin/PublishedVisualOverrides";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -43,6 +44,7 @@ export default function RootLayout({
     <html lang="en" className="lenis">
       <body className="bg-[#EBE7E1] text-[#110F0E] antialiased selection:bg-[#110F0E] selection:text-[#EBE7E1]">
         <SiteConfigProvider>
+          <PublishedVisualOverrides />
           <FilmGrainLayer />
           <MotionProvider>
             <PageTransition>

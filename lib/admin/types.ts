@@ -223,6 +223,121 @@ export interface ContactReviewsConfig {
   reviews: ClientReviewItem[];
 }
 
+export interface ElementAnimationConfig {
+  type:
+    | 'none'
+    | 'fade-in'
+    | 'fade-out'
+    | 'slide-up'
+    | 'slide-down'
+    | 'slide-left'
+    | 'slide-right'
+    | 'scale-in'
+    | 'scale-out'
+    | 'reveal'
+    | 'blur-reveal'
+    | 'character-reveal'
+    | 'ken-burns'
+    | 'zoom'
+    | 'parallax';
+  duration: number; // ms
+  delay: number; // ms
+  easing: 'ease' | 'ease-out' | 'ease-in-out' | 'ease-in' | 'linear' | 'cubic-bezier(0.16, 1, 0.3, 1)';
+  trigger: 'load' | 'in-view' | 'hover' | 'click';
+  repeat: 'once' | 'infinite' | 'alternate';
+  startPosition?: string; // e.g. "20px" or "-40px"
+  intensity?: number; // 0 to 100
+}
+
+export interface ElementHoverConfig {
+  color?: string;
+  backgroundColor?: string;
+  scale?: number; // e.g. 1.05
+  shadow?: string;
+  blur?: number; // px
+  opacity?: number; // 0 to 1
+  imageZoom?: number; // e.g. 1.1
+  duration?: number; // ms
+}
+
+export interface ElementScrollConfig {
+  type:
+    | 'none'
+    | 'fade-on-scroll'
+    | 'reveal-on-scroll'
+    | 'parallax'
+    | 'scale-on-scroll'
+    | 'horizontal-movement'
+    | 'sticky'
+    | 'image-movement'
+    | 'text-movement';
+  triggerPosition: 'top' | 'center' | 'bottom';
+  start: string; // e.g. "top bottom"
+  end: string; // e.g. "bottom top"
+  speed: number; // 0.2 to 3.0
+  intensity: number; // 0 to 100
+  direction: 'up' | 'down' | 'left' | 'right';
+}
+
+export interface PageTransitionConfig {
+  type: 'fade' | 'slide-up' | 'wipe' | 'split' | 'instant';
+  duration: number; // ms
+  easing: 'easeOut' | 'easeInOut' | 'linear';
+  direction: 'forward' | 'backward' | 'vertical';
+}
+
+export interface VisualElementOverride {
+  id: string; // unique identifier
+  page: string; // '/', '/work', '/project/blueyard', etc.
+  name: string; // human readable name
+  elementType: 'text' | 'image' | 'button' | 'section' | 'link' | 'video';
+  selector: string; // CSS selector
+  text?: string;
+  src?: string;
+  linkUrl?: string;
+  styles: {
+    fontFamily?: string;
+    fontSize?: string;
+    fontWeight?: string;
+    letterSpacing?: string;
+    lineHeight?: string;
+    color?: string;
+    opacity?: number;
+    textAlign?: 'left' | 'center' | 'right' | 'justify';
+    textTransform?: 'uppercase' | 'lowercase' | 'capitalize' | 'none';
+    fontStyle?: 'normal' | 'italic';
+    textShadow?: string;
+    backgroundColor?: string;
+    backgroundImage?: string;
+    backgroundOverlayColor?: string;
+    backgroundOverlayOpacity?: number;
+    borderWidth?: number;
+    borderStyle?: string;
+    borderColor?: string;
+    borderRadius?: number;
+    boxShadow?: string;
+    paddingTop?: number;
+    paddingBottom?: number;
+    paddingLeft?: number;
+    paddingRight?: number;
+    width?: string;
+    height?: string;
+    brightness?: number;
+    contrast?: number;
+    saturation?: number;
+    blur?: number;
+    grayscale?: boolean;
+    sepia?: number;
+    scale?: number;
+    objectFit?: 'cover' | 'contain' | 'fill' | 'none';
+    objectPosition?: string;
+    filterPreset?: string;
+  };
+  hoverStyles?: ElementHoverConfig;
+  animation?: ElementAnimationConfig;
+  scrollEffect?: ElementScrollConfig;
+}
+
 export interface SiteConfig {
   effects: GlobalEffectsConfig;
   home: HomeConfig;
@@ -231,4 +346,7 @@ export interface SiteConfig {
   film: FilmConfig;
   krishna: KrishnaConfig;
   contactReviews: ContactReviewsConfig;
+  elementOverrides?: Record<string, VisualElementOverride>;
+  pageTransitions?: PageTransitionConfig;
+  publishedAt?: string | null;
 }

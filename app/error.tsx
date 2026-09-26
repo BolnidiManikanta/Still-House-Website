@@ -11,9 +11,25 @@ export default function Error({
   reset: () => void;
 }) {
   useEffect(() => {
-    // Log unexpected client runtime exception for debugging
-    console.error("Runtime exception captured by route error boundary:", error);
+    try {
+      const msg = typeof error?.message === "string" ? error.message : String(error);
+      console.error("Runtime exception captured by route error boundary:", msg);
+    } catch {
+      // Prevent recursive logging failure
+    }
   }, [error]);
+
+  const handleReload = () => {
+    try {
+      if (typeof reset === "function") {
+        reset();
+      } else {
+        window.location.reload();
+      }
+    } catch {
+      window.location.reload();
+    }
+  };
 
   return (
     <div className="flex min-h-[70vh] flex-col items-center justify-center px-6 text-center bg-[#EBE7E1] text-[#110F0E]">
@@ -28,8 +44,9 @@ export default function Error({
       </p>
       <div className="flex flex-wrap items-center justify-center gap-4">
         <button
-          onClick={() => reset()}
-          className="inline-flex items-center gap-2 border border-[#110F0E] px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] transition-colors duration-300 hover:bg-[#110F0E] hover:text-[#EBE7E1]"
+          type="button"
+          onClick={handleReload}
+          className="inline-flex items-center gap-2 border border-[#110F0E] px-6 py-3 font-mono text-xs uppercase tracking-[0.2em] transition-colors duration-300 hover:bg-[#110F0E] hover:text-[#EBE7E1] cursor-pointer"
         >
           <span>Reload View</span>
         </button>

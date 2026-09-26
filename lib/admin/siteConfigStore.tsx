@@ -11,14 +11,18 @@ import {
   FilmConfig,
   KrishnaConfig,
   ContactReviewsConfig,
+  VisualElementOverride,
+  PageTransitionConfig,
 } from "./types";
 import { DEFAULT_SITE_CONFIG } from "./defaultConfig";
 
 const STORAGE_KEY = "still_studio_site_config_v1";
+const DRAFT_STORAGE_KEY = "still_studio_admin_draft_v1";
 const ADMIN_AUTH_KEY = "still_studio_admin_auth";
 
 interface SiteConfigContextType {
   config: SiteConfig;
+  draftConfig: SiteConfig;
   updateEffects: (effects: Partial<GlobalEffectsConfig>) => void;
   updateHome: (homeUpdates: Partial<HomeConfig>) => void;
   updateHomeHero: (heroUpdates: Partial<HomeConfig["hero"]>) => void;
@@ -30,6 +34,11 @@ interface SiteConfigContextType {
   updateFilm: (filmUpdates: Partial<FilmConfig>) => void;
   updateKrishna: (krishnaUpdates: Partial<KrishnaConfig>) => void;
   updateContactReviews: (crUpdates: Partial<ContactReviewsConfig>) => void;
+  updateElementOverride: (id: string, override: Partial<VisualElementOverride>) => void;
+  resetElementOverride: (id: string) => void;
+  resetPageOverrides: (page: string) => void;
+  saveDraft: () => void;
+  publishLive: () => void;
   resetToDefaults: () => void;
   resetSection: (section: keyof SiteConfig) => void;
   importConfig: (jsonString: string) => { success: boolean; message: string };
@@ -37,6 +46,8 @@ interface SiteConfigContextType {
   isAdmin: boolean;
   setIsAdmin: (val: boolean) => void;
   lastSaved: string | null;
+  lastPublished: string | null;
+  hasUnpublishedChanges: boolean;
 }
 
 const SiteConfigContext = createContext<SiteConfigContextType | null>(null);
@@ -64,21 +75,23 @@ function applyDomEffects(effects: GlobalEffectsConfig) {
 
 export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [config, setConfig] = useState<SiteConfig>(DEFAULT_SITE_CONFIG);
+  const [draftConfig, setDraftConfig] = useState<SiteConfig>(DEFAULT_SITE_CONFIG);
   const [isAdmin, setIsAdminState] = useState<boolean>(false);
   const [lastSaved, setLastSaved] = useState<string | null>(null);
+  const [lastPublished, setLastPublished] = useState<string | null>(null);
+  const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState<boolean>(false);
 
   // Load persisted config and admin session on mount
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
+      let publishedParsed: SiteConfig | null = null;
       if (stored) {
-        // Sanitize broken/404 image URLs in previously saved configs
         const sanitized = stored
           .replaceAll('1541888946425-d0fbb186c5f7', '1509316975850-ff9c5deb0cd9')
           .replaceAll('1541888946425-d0fbb18086f6', '1509316975850-ff9c5deb0cd9');
         const parsed = JSON.parse(sanitized);
-        // Deep merge with defaults so newly introduced keys are never undefined
-        setConfig({
+        publishedParsed = {
           effects: { ...DEFAULT_SITE_CONFIG.effects, ...(parsed.effects || {}) },
           home: {
             hero: { ...DEFAULT_SITE_CONFIG.home.hero, ...(parsed.home?.hero || {}) },
@@ -127,7 +140,30 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
             addons: parsed.contactReviews?.addons || DEFAULT_SITE_CONFIG.contactReviews.addons,
             reviews: parsed.contactReviews?.reviews || DEFAULT_SITE_CONFIG.contactReviews.reviews,
           },
-        });
+          elementOverrides: parsed.elementOverrides || {},
+          pageTransitions: parsed.pageTransitions || { type: "fade", duration: 300, easing: "easeOut", direction: "forward" },
+          publishedAt: parsed.publishedAt || null,
+        };
+        setConfig(publishedParsed);
+        if (publishedParsed.publishedAt) {
+          setLastPublished(new Date(publishedParsed.publishedAt).toLocaleTimeString());
+        }
+      }
+
+      // Check draft storage
+      const draftStored = localStorage.getItem(DRAFT_STORAGE_KEY);
+      if (draftStored) {
+        const draftParsed = JSON.parse(draftStored);
+        const base = publishedParsed || DEFAULT_SITE_CONFIG;
+        const mergedDraft: SiteConfig = {
+          ...base,
+          ...draftParsed,
+          elementOverrides: { ...(base.elementOverrides || {}), ...(draftParsed.elementOverrides || {}) },
+        };
+        setDraftConfig(mergedDraft);
+        setHasUnpublishedChanges(true);
+      } else {
+        setDraftConfig(publishedParsed || DEFAULT_SITE_CONFIG);
       }
     } catch (e) {
       console.warn("Failed to parse saved site config", e);
@@ -148,17 +184,43 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
     applyDomEffects(config.effects);
   }, [config.effects]);
 
-  // Persist helper
-  const persist = useCallback((nextConfig: SiteConfig) => {
+  // Working update helper: updates both draft and live memory config for seamless instant preview
+  const updateDraft = useCallback((nextConfig: SiteConfig) => {
+    setDraftConfig(nextConfig);
     setConfig(nextConfig);
+    setHasUnpublishedChanges(true);
+  }, []);
+
+  const saveDraft = useCallback(() => {
     try {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(nextConfig));
+      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draftConfig));
       const now = new Date();
       setLastSaved(now.toLocaleTimeString());
     } catch (e) {
-      console.error("Failed to save site config to localStorage", e);
+      console.error("Failed to save draft to localStorage", e);
     }
-  }, []);
+  }, [draftConfig]);
+
+  const publishLive = useCallback(() => {
+    try {
+      const published = {
+        ...draftConfig,
+        publishedAt: new Date().toISOString(),
+      };
+      setConfig(published);
+      setDraftConfig(published);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(published));
+      localStorage.removeItem(DRAFT_STORAGE_KEY);
+      setHasUnpublishedChanges(false);
+      const timeStr = new Date().toLocaleTimeString();
+      setLastSaved(timeStr);
+      setLastPublished(timeStr);
+      // Dispatch storage event to sync any open tabs
+      window.dispatchEvent(new Event("storage"));
+    } catch (e) {
+      console.error("Failed to publish site config", e);
+    }
+  }, [draftConfig]);
 
   const setIsAdmin = useCallback((val: boolean) => {
     setIsAdminState(val);
@@ -175,76 +237,76 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
 
   const updateEffects = useCallback(
     (updates: Partial<GlobalEffectsConfig>) => {
-      persist({
-        ...config,
-        effects: { ...config.effects, ...updates },
+      updateDraft({
+        ...draftConfig,
+        effects: { ...draftConfig.effects, ...updates },
       });
     },
-    [config, persist]
+    [draftConfig, updateDraft]
   );
 
   const updateHome = useCallback(
     (updates: Partial<HomeConfig>) => {
-      persist({
-        ...config,
-        home: { ...config.home, ...updates },
+      updateDraft({
+        ...draftConfig,
+        home: { ...draftConfig.home, ...updates },
       });
     },
-    [config, persist]
+    [draftConfig, updateDraft]
   );
 
   const updateHomeHero = useCallback(
     (heroUpdates: Partial<HomeConfig["hero"]>) => {
-      persist({
-        ...config,
+      updateDraft({
+        ...draftConfig,
         home: {
-          ...config.home,
-          hero: { ...config.home.hero, ...heroUpdates },
+          ...draftConfig.home,
+          hero: { ...draftConfig.home.hero, ...heroUpdates },
         },
       });
     },
-    [config, persist]
+    [draftConfig, updateDraft]
   );
 
   const updateHomeCuratorial = useCallback(
     (curatorialUpdates: Partial<HomeConfig["curatorial"]>) => {
-      persist({
-        ...config,
+      updateDraft({
+        ...draftConfig,
         home: {
-          ...config.home,
-          curatorial: { ...config.home.curatorial, ...curatorialUpdates },
+          ...draftConfig.home,
+          curatorial: { ...draftConfig.home.curatorial, ...curatorialUpdates },
         },
       });
     },
-    [config, persist]
+    [draftConfig, updateDraft]
   );
 
   const updateHomeNextMonograph = useCallback(
     (nextUpdates: Partial<HomeConfig["nextMonograph"]>) => {
-      persist({
-        ...config,
+      updateDraft({
+        ...draftConfig,
         home: {
-          ...config.home,
-          nextMonograph: { ...config.home.nextMonograph, ...nextUpdates },
+          ...draftConfig.home,
+          nextMonograph: { ...draftConfig.home.nextMonograph, ...nextUpdates },
         },
       });
     },
-    [config, persist]
+    [draftConfig, updateDraft]
   );
 
   const updateWork = useCallback(
     (workUpdates: Partial<WorkConfig>) => {
-      persist({
-        ...config,
-        work: { ...config.work, ...workUpdates },
+      updateDraft({
+        ...draftConfig,
+        work: { ...draftConfig.work, ...workUpdates },
       });
     },
-    [config, persist]
+    [draftConfig, updateDraft]
   );
 
   const updateWorkPlate = useCallback(
     (plateId: string, updates: Partial<WorkPlateItem>) => {
-      const currentPlates = config.work.plates || DEFAULT_SITE_CONFIG.work.plates;
+      const currentPlates = draftConfig.work.plates || DEFAULT_SITE_CONFIG.work.plates;
       const updatedPlates = currentPlates.map((plate) => {
         if (plate.id === plateId) {
           return {
@@ -255,69 +317,162 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
         }
         return plate;
       });
-      persist({
-        ...config,
+      updateDraft({
+        ...draftConfig,
         work: {
-          ...config.work,
+          ...draftConfig.work,
           plates: updatedPlates,
         },
       });
     },
-    [config, persist]
+    [draftConfig, updateDraft]
   );
 
   const updateProject = useCallback(
     (projectUpdates: Partial<ProjectConfig>) => {
-      persist({
-        ...config,
-        project: { ...config.project, ...projectUpdates },
+      updateDraft({
+        ...draftConfig,
+        project: { ...draftConfig.project, ...projectUpdates },
       });
     },
-    [config, persist]
+    [draftConfig, updateDraft]
   );
 
   const updateFilm = useCallback(
     (updates: Partial<FilmConfig>) => {
-      persist({
-        ...config,
-        film: { ...config.film, ...updates },
+      updateDraft({
+        ...draftConfig,
+        film: { ...draftConfig.film, ...updates },
       });
     },
-    [config, persist]
+    [draftConfig, updateDraft]
   );
 
   const updateKrishna = useCallback(
     (updates: Partial<KrishnaConfig>) => {
-      persist({
-        ...config,
-        krishna: { ...config.krishna, ...updates },
+      updateDraft({
+        ...draftConfig,
+        krishna: { ...draftConfig.krishna, ...updates },
       });
     },
-    [config, persist]
+    [draftConfig, updateDraft]
   );
 
   const updateContactReviews = useCallback(
     (updates: Partial<ContactReviewsConfig>) => {
-      persist({
-        ...config,
-        contactReviews: { ...config.contactReviews, ...updates },
+      updateDraft({
+        ...draftConfig,
+        contactReviews: { ...draftConfig.contactReviews, ...updates },
       });
     },
-    [config, persist]
+    [draftConfig, updateDraft]
+  );
+
+  const updateElementOverride = useCallback(
+    (id: string, override: Partial<VisualElementOverride>) => {
+      const existing = (draftConfig.elementOverrides || {})[id] || {
+        id,
+        page: "/",
+        name: id,
+        elementType: "text",
+        selector: `[data-admin-id="${id}"]`,
+        styles: {},
+      };
+
+      const updatedOverrides = {
+        ...(draftConfig.elementOverrides || {}),
+        [id]: {
+          ...existing,
+          ...override,
+          styles: {
+            ...existing.styles,
+            ...(override.styles || {}),
+          },
+          hoverStyles: {
+            ...(existing.hoverStyles || {}),
+            ...(override.hoverStyles || {}),
+          },
+          animation: {
+            ...(existing.animation || {
+              type: "none",
+              duration: 800,
+              delay: 0,
+              easing: "ease-out",
+              trigger: "load",
+              repeat: "once",
+              intensity: 50,
+            }),
+            ...(override.animation || {}),
+          },
+          scrollEffect: {
+            ...(existing.scrollEffect || {
+              type: "none",
+              triggerPosition: "center",
+              start: "top bottom",
+              end: "bottom top",
+              speed: 1.0,
+              intensity: 50,
+              direction: "up",
+            }),
+            ...(override.scrollEffect || {}),
+          },
+        },
+      };
+
+      updateDraft({
+        ...draftConfig,
+        elementOverrides: updatedOverrides,
+      });
+    },
+    [draftConfig, updateDraft]
+  );
+
+  const resetElementOverride = useCallback(
+    (id: string) => {
+      const current = { ...(draftConfig.elementOverrides || {}) };
+      delete current[id];
+      updateDraft({
+        ...draftConfig,
+        elementOverrides: current,
+      });
+    },
+    [draftConfig, updateDraft]
+  );
+
+  const resetPageOverrides = useCallback(
+    (page: string) => {
+      const current = { ...(draftConfig.elementOverrides || {}) };
+      Object.keys(current).forEach((key) => {
+        if (current[key]?.page === page) {
+          delete current[key];
+        }
+      });
+      updateDraft({
+        ...draftConfig,
+        elementOverrides: current,
+      });
+    },
+    [draftConfig, updateDraft]
   );
 
   const resetToDefaults = useCallback(() => {
-    persist(DEFAULT_SITE_CONFIG);
-  }, [persist]);
+    localStorage.removeItem(DRAFT_STORAGE_KEY);
+    localStorage.removeItem(STORAGE_KEY);
+    setConfig(DEFAULT_SITE_CONFIG);
+    setDraftConfig(DEFAULT_SITE_CONFIG);
+    setHasUnpublishedChanges(false);
+    setLastSaved(new Date().toLocaleTimeString());
+    setLastPublished(new Date().toLocaleTimeString());
+  }, []);
 
   const resetSection = useCallback(
     (section: keyof SiteConfig) => {
-      persist({
-        ...config,
+      updateDraft({
+        ...draftConfig,
         [section]: DEFAULT_SITE_CONFIG[section],
       });
     },
-    [config, persist]
+    [draftConfig, updateDraft]
   );
 
   const importConfig = useCallback(
@@ -363,18 +518,18 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
             reviews: parsed.contactReviews?.reviews || DEFAULT_SITE_CONFIG.contactReviews.reviews,
           },
         };
-        persist(merged);
+        updateDraft(merged);
         return { success: true, message: "Configuration successfully imported & live synced" };
       } catch (e: any) {
         return { success: false, message: `JSON Parse error: ${e?.message || "unknown"}` };
       }
     },
-    [persist]
+    [updateDraft]
   );
 
   const exportConfig = useCallback(() => {
     try {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(config, null, 2));
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(draftConfig, null, 2));
       const downloadAnchor = document.createElement("a");
       downloadAnchor.setAttribute("href", dataStr);
       downloadAnchor.setAttribute("download", `still-studio-site-config-${new Date().toISOString().slice(0, 10)}.json`);
@@ -384,12 +539,13 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
     } catch (e) {
       console.error("Export failed", e);
     }
-  }, [config]);
+  }, [draftConfig]);
 
   return (
     <SiteConfigContext.Provider
       value={{
         config,
+        draftConfig,
         updateEffects,
         updateHome,
         updateHomeHero,
@@ -401,6 +557,11 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
         updateFilm,
         updateKrishna,
         updateContactReviews,
+        updateElementOverride,
+        resetElementOverride,
+        resetPageOverrides,
+        saveDraft,
+        publishLive,
         resetToDefaults,
         resetSection,
         importConfig,
@@ -408,6 +569,8 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
         isAdmin,
         setIsAdmin,
         lastSaved,
+        lastPublished,
+        hasUnpublishedChanges,
       }}
     >
       {children}
