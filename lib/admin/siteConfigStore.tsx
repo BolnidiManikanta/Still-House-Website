@@ -15,6 +15,7 @@ import {
   PageTransitionConfig,
 } from "./types";
 import { DEFAULT_SITE_CONFIG } from "./defaultConfig";
+import { safeJsonStringify, safeClone, sanitizePlainRecord } from "./safeJson";
 
 const STORAGE_KEY = "still_studio_site_config_v1";
 const DRAFT_STORAGE_KEY = "still_studio_admin_draft_v1";
@@ -81,93 +82,88 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
   const [lastPublished, setLastPublished] = useState<string | null>(null);
   const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState<boolean>(false);
 
-  // Load persisted config and admin session on mount
+  // Load persisted config and admin session on mount with real-time sync listeners
   useEffect(() => {
-    try {
-      const stored = localStorage.getItem(STORAGE_KEY);
-      let publishedParsed: SiteConfig | null = null;
-      if (stored) {
-        const sanitized = stored
-          .replaceAll('1541888946425-d0fbb186c5f7', '1509316975850-ff9c5deb0cd9')
-          .replaceAll('1541888946425-d0fbb18086f6', '1509316975850-ff9c5deb0cd9');
-        const parsed = JSON.parse(sanitized);
-        publishedParsed = {
-          effects: { ...DEFAULT_SITE_CONFIG.effects, ...(parsed.effects || {}) },
-          home: {
-            hero: { ...DEFAULT_SITE_CONFIG.home.hero, ...(parsed.home?.hero || {}) },
-            curatorial: { ...DEFAULT_SITE_CONFIG.home.curatorial, ...(parsed.home?.curatorial || {}) },
-            nextMonograph: { ...DEFAULT_SITE_CONFIG.home.nextMonograph, ...(parsed.home?.nextMonograph || {}) },
-          },
-          work: {
-            ...DEFAULT_SITE_CONFIG.work,
-            ...(parsed.work || {}),
-            titleTypography: { ...DEFAULT_SITE_CONFIG.work.titleTypography, ...(parsed.work?.titleTypography || {}) },
-            heroImageStyle: { ...DEFAULT_SITE_CONFIG.work.heroImageStyle, ...(parsed.work?.heroImageStyle || {}) },
-            plates:
-              parsed.work?.plates && parsed.work.plates.length > 0
-                ? DEFAULT_SITE_CONFIG.work.plates.map((defaultPlate, idx) => {
-                    const saved = parsed.work.plates.find((p: any) => p.id === defaultPlate.id) || parsed.work.plates[idx];
-                    return saved
-                      ? {
-                          ...defaultPlate,
-                          ...saved,
-                          style: { ...defaultPlate.style, ...(saved.style || {}) },
-                        }
-                      : defaultPlate;
-                  })
-                : DEFAULT_SITE_CONFIG.work.plates,
-          },
-          project: {
-            ...DEFAULT_SITE_CONFIG.project,
-            ...(parsed.project || {}),
-            titleTypography: { ...DEFAULT_SITE_CONFIG.project.titleTypography, ...(parsed.project?.titleTypography || {}) },
-            primaryImageStyle: { ...DEFAULT_SITE_CONFIG.project.primaryImageStyle, ...(parsed.project?.primaryImageStyle || {}) },
-            secondaryImageStyle: { ...DEFAULT_SITE_CONFIG.project.secondaryImageStyle, ...(parsed.project?.secondaryImageStyle || {}) },
-          },
-          film: {
-            hero: { ...DEFAULT_SITE_CONFIG.film.hero, ...(parsed.film?.hero || {}) },
-            projects: parsed.film?.projects || DEFAULT_SITE_CONFIG.film.projects,
-          },
-          krishna: {
-            ...DEFAULT_SITE_CONFIG.krishna,
-            ...(parsed.krishna || {}),
-            categories: parsed.krishna?.categories || DEFAULT_SITE_CONFIG.krishna.categories,
-          },
-          contactReviews: {
-            ...DEFAULT_SITE_CONFIG.contactReviews,
-            ...(parsed.contactReviews || {}),
-            categories: parsed.contactReviews?.categories || DEFAULT_SITE_CONFIG.contactReviews.categories,
-            addons: parsed.contactReviews?.addons || DEFAULT_SITE_CONFIG.contactReviews.addons,
-            reviews: parsed.contactReviews?.reviews || DEFAULT_SITE_CONFIG.contactReviews.reviews,
-          },
-          elementOverrides: parsed.elementOverrides || {},
-          pageTransitions: parsed.pageTransitions || { type: "fade", duration: 300, easing: "easeOut", direction: "forward" },
-          publishedAt: parsed.publishedAt || null,
-        };
-        setConfig(publishedParsed);
-        if (publishedParsed.publishedAt) {
-          setLastPublished(new Date(publishedParsed.publishedAt).toLocaleTimeString());
-        }
-      }
+    const loadStoredConfig = () => {
+      try {
+        const stored = localStorage.getItem(STORAGE_KEY);
+        const draftStored = localStorage.getItem(DRAFT_STORAGE_KEY);
+        const rawJson = draftStored || stored;
 
-      // Check draft storage
-      const draftStored = localStorage.getItem(DRAFT_STORAGE_KEY);
-      if (draftStored) {
-        const draftParsed = JSON.parse(draftStored);
-        const base = publishedParsed || DEFAULT_SITE_CONFIG;
-        const mergedDraft: SiteConfig = {
-          ...base,
-          ...draftParsed,
-          elementOverrides: { ...(base.elementOverrides || {}), ...(draftParsed.elementOverrides || {}) },
-        };
-        setDraftConfig(mergedDraft);
-        setHasUnpublishedChanges(true);
-      } else {
-        setDraftConfig(publishedParsed || DEFAULT_SITE_CONFIG);
+        if (rawJson) {
+          const sanitized = rawJson
+            .replaceAll('1541888946425-d0fbb186c5f7', '1509316975850-ff9c5deb0cd9')
+            .replaceAll('1541888946425-d0fbb18086f6', '1509316975850-ff9c5deb0cd9');
+          const parsed = JSON.parse(sanitized);
+          const activeConfig: SiteConfig = {
+            effects: { ...DEFAULT_SITE_CONFIG.effects, ...(parsed.effects || {}) },
+            home: {
+              hero: { ...DEFAULT_SITE_CONFIG.home.hero, ...(parsed.home?.hero || {}) },
+              curatorial: { ...DEFAULT_SITE_CONFIG.home.curatorial, ...(parsed.home?.curatorial || {}) },
+              nextMonograph: { ...DEFAULT_SITE_CONFIG.home.nextMonograph, ...(parsed.home?.nextMonograph || {}) },
+            },
+            work: {
+              ...DEFAULT_SITE_CONFIG.work,
+              ...(parsed.work || {}),
+              titleTypography: { ...DEFAULT_SITE_CONFIG.work.titleTypography, ...(parsed.work?.titleTypography || {}) },
+              heroImageStyle: { ...DEFAULT_SITE_CONFIG.work.heroImageStyle, ...(parsed.work?.heroImageStyle || {}) },
+              plates:
+                parsed.work?.plates && parsed.work.plates.length > 0
+                  ? DEFAULT_SITE_CONFIG.work.plates.map((defaultPlate, idx) => {
+                      const saved = parsed.work.plates.find((p: any) => p.id === defaultPlate.id) || parsed.work.plates[idx];
+                      return saved
+                        ? {
+                            ...defaultPlate,
+                            ...saved,
+                            style: { ...defaultPlate.style, ...(saved.style || {}) },
+                          }
+                        : defaultPlate;
+                    })
+                  : DEFAULT_SITE_CONFIG.work.plates,
+            },
+            project: {
+              ...DEFAULT_SITE_CONFIG.project,
+              ...(parsed.project || {}),
+              titleTypography: { ...DEFAULT_SITE_CONFIG.project.titleTypography, ...(parsed.project?.titleTypography || {}) },
+              primaryImageStyle: { ...DEFAULT_SITE_CONFIG.project.primaryImageStyle, ...(parsed.project?.primaryImageStyle || {}) },
+              secondaryImageStyle: { ...DEFAULT_SITE_CONFIG.project.secondaryImageStyle, ...(parsed.project?.secondaryImageStyle || {}) },
+            },
+            film: {
+              hero: { ...DEFAULT_SITE_CONFIG.film.hero, ...(parsed.film?.hero || {}) },
+              projects: parsed.film?.projects || DEFAULT_SITE_CONFIG.film.projects,
+            },
+            krishna: {
+              ...DEFAULT_SITE_CONFIG.krishna,
+              ...(parsed.krishna || {}),
+              categories: parsed.krishna?.categories || DEFAULT_SITE_CONFIG.krishna.categories,
+            },
+            contactReviews: {
+              ...DEFAULT_SITE_CONFIG.contactReviews,
+              ...(parsed.contactReviews || {}),
+              categories: parsed.contactReviews?.categories || DEFAULT_SITE_CONFIG.contactReviews.categories,
+              addons: parsed.contactReviews?.addons || DEFAULT_SITE_CONFIG.contactReviews.addons,
+              reviews: parsed.contactReviews?.reviews || DEFAULT_SITE_CONFIG.contactReviews.reviews,
+            },
+            elementOverrides: parsed.elementOverrides || {},
+            pageTransitions: parsed.pageTransitions || { type: "fade", duration: 300, easing: "easeOut", direction: "forward" },
+            publishedAt: parsed.publishedAt || null,
+          };
+
+          setConfig(activeConfig);
+          setDraftConfig(activeConfig);
+          if (draftStored) {
+            setHasUnpublishedChanges(true);
+          }
+          if (activeConfig.publishedAt) {
+            setLastPublished(new Date(activeConfig.publishedAt).toLocaleTimeString());
+          }
+        }
+      } catch (e: any) {
+        console.warn("Failed to parse saved site config:", String(e?.message || e));
       }
-    } catch (e) {
-      console.warn("Failed to parse saved site config", e);
-    }
+    };
+
+    loadStoredConfig();
 
     try {
       const auth = localStorage.getItem(ADMIN_AUTH_KEY);
@@ -177,6 +173,18 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
     } catch {
       // ignore
     }
+
+    // Real-time synchronization across browser tabs and iframe windows
+    const handleSync = () => {
+      loadStoredConfig();
+    };
+
+    window.addEventListener("storage", handleSync);
+    window.addEventListener("still_studio_config_updated", handleSync);
+    return () => {
+      window.removeEventListener("storage", handleSync);
+      window.removeEventListener("still_studio_config_updated", handleSync);
+    };
   }, []);
 
   // Update DOM styles whenever effects change
@@ -184,32 +192,51 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
     applyDomEffects(config.effects);
   }, [config.effects]);
 
-  // Working update helper: updates both draft and live memory config for seamless instant preview
+  // Working update helper: updates both draft and live memory config and automatically persists
+  // to localStorage so every page dynamically and immediately reflects changes.
   const updateDraft = useCallback((nextConfig: SiteConfig) => {
-    setDraftConfig(nextConfig);
-    setConfig(nextConfig);
-    setHasUnpublishedChanges(true);
+    try {
+      const clean = safeClone(nextConfig);
+      setDraftConfig(clean);
+      setConfig(clean);
+      setHasUnpublishedChanges(true);
+
+      // Auto-persist immediately to localStorage for instant multi-page responsiveness
+      try {
+        localStorage.setItem(DRAFT_STORAGE_KEY, safeJsonStringify(clean));
+        localStorage.setItem(STORAGE_KEY, safeJsonStringify(clean));
+        // Broadcast change event to other components and open views
+        window.dispatchEvent(new CustomEvent("still_studio_config_updated", { detail: clean }));
+      } catch {
+        // ignore
+      }
+    } catch {
+      setDraftConfig(nextConfig);
+      setConfig(nextConfig);
+      setHasUnpublishedChanges(true);
+    }
   }, []);
 
   const saveDraft = useCallback(() => {
     try {
-      localStorage.setItem(DRAFT_STORAGE_KEY, JSON.stringify(draftConfig));
+      const cleanDraft = safeClone(draftConfig);
+      localStorage.setItem(DRAFT_STORAGE_KEY, safeJsonStringify(cleanDraft));
       const now = new Date();
       setLastSaved(now.toLocaleTimeString());
-    } catch (e) {
-      console.error("Failed to save draft to localStorage", e);
+    } catch (e: any) {
+      console.warn("Failed to save draft to localStorage:", String(e?.message || e));
     }
   }, [draftConfig]);
 
   const publishLive = useCallback(() => {
     try {
-      const published = {
+      const published = safeClone({
         ...draftConfig,
         publishedAt: new Date().toISOString(),
-      };
+      });
       setConfig(published);
       setDraftConfig(published);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(published));
+      localStorage.setItem(STORAGE_KEY, safeJsonStringify(published));
       localStorage.removeItem(DRAFT_STORAGE_KEY);
       setHasUnpublishedChanges(false);
       const timeStr = new Date().toLocaleTimeString();
@@ -217,8 +244,8 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
       setLastPublished(timeStr);
       // Dispatch storage event to sync any open tabs
       window.dispatchEvent(new Event("storage"));
-    } catch (e) {
-      console.error("Failed to publish site config", e);
+    } catch (e: any) {
+      console.warn("Failed to publish site config:", String(e?.message || e));
     }
   }, [draftConfig]);
 
@@ -370,6 +397,7 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
 
   const updateElementOverride = useCallback(
     (id: string, override: Partial<VisualElementOverride>) => {
+      const sanitizedOverride = (sanitizePlainRecord(override) || {}) as Partial<VisualElementOverride>;
       const existing = (draftConfig.elementOverrides || {})[id] || {
         id,
         page: "/",
@@ -383,14 +411,14 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
         ...(draftConfig.elementOverrides || {}),
         [id]: {
           ...existing,
-          ...override,
+          ...sanitizedOverride,
           styles: {
             ...existing.styles,
-            ...(override.styles || {}),
+            ...(sanitizedOverride.styles || {}),
           },
           hoverStyles: {
             ...(existing.hoverStyles || {}),
-            ...(override.hoverStyles || {}),
+            ...(sanitizedOverride.hoverStyles || {}),
           },
           animation: {
             ...(existing.animation || {
@@ -402,7 +430,7 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
               repeat: "once",
               intensity: 50,
             }),
-            ...(override.animation || {}),
+            ...(sanitizedOverride.animation || {}),
           },
           scrollEffect: {
             ...(existing.scrollEffect || {
@@ -414,7 +442,7 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
               intensity: 50,
               direction: "up",
             }),
-            ...(override.scrollEffect || {}),
+            ...(sanitizedOverride.scrollEffect || {}),
           },
         },
       };
@@ -529,15 +557,16 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
 
   const exportConfig = useCallback(() => {
     try {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(draftConfig, null, 2));
+      const cleanData = safeClone(draftConfig);
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(safeJsonStringify(cleanData, 2));
       const downloadAnchor = document.createElement("a");
       downloadAnchor.setAttribute("href", dataStr);
       downloadAnchor.setAttribute("download", `still-studio-site-config-${new Date().toISOString().slice(0, 10)}.json`);
       document.body.appendChild(downloadAnchor);
       downloadAnchor.click();
       downloadAnchor.remove();
-    } catch (e) {
-      console.error("Export failed", e);
+    } catch (e: any) {
+      console.warn("Export failed:", String(e?.message || e));
     }
   }, [draftConfig]);
 

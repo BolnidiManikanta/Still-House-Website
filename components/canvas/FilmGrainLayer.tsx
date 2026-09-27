@@ -1,14 +1,17 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import { useSiteConfig } from "@/lib/admin/siteConfigStore";
 
 export default function FilmGrainLayer() {
+  const pathname = usePathname();
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const { config } = useSiteConfig();
   const grainOpacity = config.effects.grainOpacity;
 
   useEffect(() => {
+    if (pathname === "/admin") return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -80,7 +83,11 @@ export default function FilmGrainLayer() {
       window.removeEventListener("resize", handleResize);
       cancelAnimationFrame(animId);
     };
-  }, []);
+  }, [pathname]);
+
+  if (pathname === "/admin") {
+    return null;
+  }
 
   return (
     <canvas

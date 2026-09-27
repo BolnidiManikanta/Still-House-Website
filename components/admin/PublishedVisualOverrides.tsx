@@ -165,76 +165,83 @@ export default function PublishedVisualOverrides() {
     };
 
     const handleClick = (e: MouseEvent) => {
-      // Check if interactive browse mode is requested by parent
-      if ((window as any).__ADMIN_INTERACT_MODE__) {
-        return; // Allow natural navigation and clicking
-      }
+      try {
+        // Check if interactive browse mode is requested by parent
+        if ((window as any).__ADMIN_INTERACT_MODE__) {
+          return; // Allow natural navigation and clicking
+        }
 
-      e.preventDefault();
-      e.stopPropagation();
+        e.preventDefault();
+        e.stopPropagation();
 
-      const target = e.target as HTMLElement;
-      if (!target || target === document.body) return;
+        const target = e.target as HTMLElement;
+        if (!target || target === document.body || target === document.documentElement) return;
+        if (target.classList?.contains("__admin_badge")) return;
 
-      if (selectedEl) {
-        selectedEl.classList.remove("__admin_selected_target");
-      }
-      selectedEl = target;
-      selectedEl.classList.add("__admin_selected_target");
+        if (selectedEl) {
+          selectedEl.classList.remove("__admin_selected_target");
+        }
+        selectedEl = target;
+        selectedEl.classList.add("__admin_selected_target");
 
-      // Attach badge
-      if (!badgeEl) {
-        badgeEl = document.createElement("div");
-        badgeEl.className = "__admin_badge";
-        document.body.appendChild(badgeEl);
-      }
-      const rect = target.getBoundingClientRect();
-      badgeEl.textContent = `${target.tagName.toLowerCase()} · ${determineElementType(target)}`;
-      badgeEl.style.top = `${window.scrollY + Math.max(0, rect.top - 24)}px`;
-      badgeEl.style.left = `${window.scrollX + rect.left}px`;
-      badgeEl.style.display = "block";
+        // Attach badge
+        if (!badgeEl) {
+          badgeEl = document.createElement("div");
+          badgeEl.className = "__admin_badge";
+          document.body.appendChild(badgeEl);
+        }
+        const rect = target.getBoundingClientRect();
+        badgeEl.textContent = `${target.tagName.toLowerCase()} · ${determineElementType(target)}`;
+        badgeEl.style.top = `${window.scrollY + Math.max(0, rect.top - 24)}px`;
+        badgeEl.style.left = `${window.scrollX + rect.left}px`;
+        badgeEl.style.display = "block";
 
-      const computed = window.getComputedStyle(target);
-      const img = target.tagName.toLowerCase() === "img" ? (target as HTMLImageElement) : target.querySelector("img");
-
-      const elementData = {
-        tagName: String(target.tagName || "").toLowerCase(),
-        selector: String(getElementSelector(target) || "div"),
-        elementType: determineElementType(target),
-        text: String(target.innerText || target.textContent || "").slice(0, 1000),
-        src: img ? String(img.src || "") : "",
-        href: String(target.getAttribute("href") || (target.closest("a")?.getAttribute("href") || "")),
-        styles: {
-          color: String(computed.color || ""),
-          fontSize: String(computed.fontSize || ""),
-          fontFamily: String(computed.fontFamily || ""),
-          fontWeight: String(computed.fontWeight || ""),
-          lineHeight: String(computed.lineHeight || ""),
-          letterSpacing: String(computed.letterSpacing || ""),
-          textAlign: String(computed.textAlign || ""),
-          backgroundColor: String(computed.backgroundColor || ""),
-          opacity: parseFloat(computed.opacity || "1") || 1,
-          borderRadius: parseFloat(computed.borderRadius || "0") || 0,
-          paddingTop: parseFloat(computed.paddingTop || "0") || 0,
-          paddingBottom: parseFloat(computed.paddingBottom || "0") || 0,
-          paddingLeft: parseFloat(computed.paddingLeft || "0") || 0,
-          paddingRight: parseFloat(computed.paddingRight || "0") || 0,
-          width: String(computed.width || ""),
-          height: String(computed.height || ""),
-        },
-      };
-
-      // Notify parent admin editor window safely
-      if (window.parent && window.parent !== window) {
+        let computed: CSSStyleDeclaration | null = null;
         try {
+          computed = window.getComputedStyle(target);
+        } catch {
+          computed = null;
+        }
+
+        const img = target.tagName.toLowerCase() === "img" ? (target as HTMLImageElement) : target.querySelector("img");
+
+        const elementData = {
+          tagName: String(target.tagName || "").toLowerCase(),
+          selector: String(getElementSelector(target) || "div"),
+          elementType: determineElementType(target),
+          text: String(target.innerText ?? target.textContent ?? "").slice(0, 1000),
+          src: img ? String(img.src || "") : "",
+          href: String(target.getAttribute("href") || (target.closest("a")?.getAttribute("href") || "")),
+          styles: {
+            color: String(computed?.color || ""),
+            fontSize: String(computed?.fontSize || ""),
+            fontFamily: String(computed?.fontFamily || ""),
+            fontWeight: String(computed?.fontWeight || ""),
+            lineHeight: String(computed?.lineHeight || ""),
+            letterSpacing: String(computed?.letterSpacing || ""),
+            textAlign: String(computed?.textAlign || ""),
+            backgroundColor: String(computed?.backgroundColor || ""),
+            opacity: parseFloat(computed?.opacity || "1") || 1,
+            borderRadius: parseFloat(computed?.borderRadius || "0") || 0,
+            paddingTop: parseFloat(computed?.paddingTop || "0") || 0,
+            paddingBottom: parseFloat(computed?.paddingBottom || "0") || 0,
+            paddingLeft: parseFloat(computed?.paddingLeft || "0") || 0,
+            paddingRight: parseFloat(computed?.paddingRight || "0") || 0,
+            width: String(computed?.width || ""),
+            height: String(computed?.height || ""),
+          },
+        };
+
+        // Notify parent admin editor window safely
+        if (window.parent && window.parent !== window) {
           const payload = safeClone({
             type: "ADMIN_ELEMENT_SELECTED",
             data: elementData,
           });
           window.parent.postMessage(payload, "*");
-        } catch {
-          // ignore postMessage error
         }
+      } catch (err: any) {
+        console.warn("Inspector click handler captured error safely:", String(err?.message || err));
       }
     };
 

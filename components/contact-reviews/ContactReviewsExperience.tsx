@@ -15,6 +15,7 @@ import { RatingModal } from './RatingModal';
 import { DynamicActionButton } from './DynamicActionButton';
 import { INITIAL_REVIEWS, PHOTOGRAPHY_CATEGORIES } from '@/lib/contact-reviews/initialData';
 import { PhotographyRating, ShootCategory } from '@/lib/contact-reviews/types';
+import { safeJsonStringify } from '@/lib/admin/safeJson';
 
 if (typeof window !== "undefined") {
   gsap.registerPlugin(ScrollTrigger);
@@ -41,7 +42,7 @@ export default function ContactReviewsExperience() {
   // Save reviews to localStorage whenever updated
   useEffect(() => {
     try {
-      localStorage.setItem('apex_photography_reviews', JSON.stringify(reviews));
+      localStorage.setItem('apex_photography_reviews', safeJsonStringify(reviews));
     } catch (e) {
       console.warn('Failed to persist reviews', e);
     }

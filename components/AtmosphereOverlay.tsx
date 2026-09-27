@@ -1,17 +1,20 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import FloatingParticlesCanvas from "./FloatingParticlesCanvas";
 import ThreeCanvasEngine from "./canvas/ThreeCanvasEngine";
 import { useSiteConfig } from "@/lib/admin/siteConfigStore";
 
 export default function AtmosphereOverlay() {
+  const pathname = usePathname();
   const fog1Ref = useRef<HTMLDivElement>(null);
   const lightRaysRef = useRef<HTMLDivElement>(null);
   const { config } = useSiteConfig();
   const { vignetteIntensity, fogOpacity } = config.effects;
 
   useEffect(() => {
+    if (pathname === "/admin") return;
     let animationFrameId: number;
     let time = 0;
 
@@ -37,7 +40,11 @@ export default function AtmosphereOverlay() {
     animationFrameId = requestAnimationFrame(animateAtmosphere);
 
     return () => cancelAnimationFrame(animationFrameId);
-  }, [fogOpacity]);
+  }, [fogOpacity, pathname]);
+
+  if (pathname === "/admin") {
+    return null;
+  }
 
   return (
     <>
