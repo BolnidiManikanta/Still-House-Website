@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useRef, useState } from "react"
 import dynamic from "next/dynamic"
-import Lenis from "lenis"
 import gsap from "gsap"
 import { ScrollTrigger } from "gsap/ScrollTrigger"
 import { motion, clamp, lerp, smoothstep } from "@/lib/project/motion"
@@ -35,22 +34,29 @@ export default function Experience({ slug = "blueyard" }: { slug?: string }) {
     const root = rootRef.current
     if (!root) return
 
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-    motion.reduced = reduced
+    let tickRaf = 0
+    let rafFunc: any = null
+    let localLenis: any = null
+    let ctx: any = null
 
-    const lenis = new Lenis({
-      duration: 1.15,
-      easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-    })
+    import("lenis").then(({ default: LenisClass }) => {
+      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+      motion.reduced = reduced
 
-    lenis.on("scroll", () => ScrollTrigger.update())
-    const raf = (time: number) => lenis.raf(time * 1000)
-    gsap.ticker.add(raf)
-    gsap.ticker.lagSmoothing(0)
+      const lenis = new LenisClass({
+        duration: 1.15,
+        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        smoothWheel: true,
+      })
+      localLenis = lenis
+
+      lenis.on("scroll", () => ScrollTrigger.update())
+      rafFunc = (time: number) => lenis.raf(time * 1000)
+      gsap.ticker.add(rafFunc)
+      gsap.ticker.lagSmoothing(0)
 
     // ---- reveals ------------------------------------------------------------
-    const ctx = gsap.context(() => {
+    ctx = gsap.context(() => {
       // line-masked headings
       gsap.utils.toArray<HTMLElement>('[data-reveal="lines"]').forEach((el) => {
         const lines = el.querySelectorAll<HTMLElement>(".pr-line-inner")
@@ -161,14 +167,15 @@ export default function Experience({ slug = "blueyard" }: { slug?: string }) {
     }
     tick()
 
-    setReady(true)
+      setReady(true)
+    })
 
     return () => {
       cancelAnimationFrame(tickRaf)
-      gsap.ticker.remove(raf)
-      ctx.revert()
+      if (rafFunc) gsap.ticker.remove(rafFunc)
+      if (ctx) ctx.revert()
       ScrollTrigger.getAll().forEach((s) => s.kill())
-      lenis.destroy()
+      if (localLenis) localLenis.destroy()
     }
   }, [])
 

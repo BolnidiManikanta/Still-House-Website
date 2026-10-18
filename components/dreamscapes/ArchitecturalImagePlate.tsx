@@ -18,6 +18,10 @@ interface ArchitecturalImagePlateProps {
   dataCursor?: string;
   onClick?: () => void;
   customStyle?: React.CSSProperties;
+  dataAdminId?: string;
+  dataAdminName?: string;
+  dataAdminSection?: string;
+  dataAdminPage?: string;
 }
 
 export default function ArchitecturalImagePlate({
@@ -32,6 +36,10 @@ export default function ArchitecturalImagePlate({
   dataCursor = "VIEW PROJECT ↗",
   onClick,
   customStyle,
+  dataAdminId,
+  dataAdminName,
+  dataAdminSection = "volumeOne",
+  dataAdminPage = "work",
 }: ArchitecturalImagePlateProps) {
   const { triggerTransition } = usePageTransition();
   const containerRef = useRef<HTMLDivElement>(null);
@@ -258,6 +266,12 @@ export default function ArchitecturalImagePlate({
   return (
     <div
       ref={containerRef}
+      data-admin-id={dataAdminId || "work.volumeOne.image01"}
+      data-admin-page={dataAdminPage}
+      data-admin-section={dataAdminSection}
+      data-admin-type="image"
+      data-admin-name={dataAdminName || alt || "Architectural Image Plate"}
+      data-admin-caption={alt}
       onClick={handlePlateClick}
       role="button"
       tabIndex={0}

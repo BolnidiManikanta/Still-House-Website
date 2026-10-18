@@ -311,6 +311,10 @@ export default function DreamscapesExperience() {
               showWipe
               parallaxSpeed={16}
               customStyle={getImageFilterStyles(p01.style)}
+              dataAdminId="work.volumeOne.image01"
+              dataAdminName="Volume One Plate 01"
+              dataAdminSection="volumeOne"
+              dataAdminPage="work"
             />
 
             <ArchitecturalImagePlate
@@ -321,6 +325,10 @@ export default function DreamscapesExperience() {
               priority
               parallaxSpeed={24}
               customStyle={getImageFilterStyles(p02.style)}
+              dataAdminId="work.volumeOne.image02"
+              dataAdminName="Volume One Plate 02"
+              dataAdminSection="volumeOne"
+              dataAdminPage="work"
             />
 
             <ArchitecturalImagePlate
@@ -332,6 +340,10 @@ export default function DreamscapesExperience() {
               showWipe
               parallaxSpeed={18}
               customStyle={getImageFilterStyles(p03.style)}
+              dataAdminId="work.volumeOne.image03"
+              dataAdminName="Volume One Plate 03"
+              dataAdminSection="volumeOne"
+              dataAdminPage="work"
             />
           </div>
         </section>
@@ -347,6 +359,10 @@ export default function DreamscapesExperience() {
             showWipe
             parallaxSpeed={20}
             customStyle={getImageFilterStyles(p04.style)}
+            dataAdminId="work.volumeOne.image04"
+            dataAdminName="Volume One Plate 04"
+            dataAdminSection="volumeOne"
+            dataAdminPage="work"
           />
 
           <div className="w-full md:w-[34%] flex flex-col space-y-[32px]">
@@ -363,7 +379,14 @@ export default function DreamscapesExperience() {
         </section>
 
         {/* SECTION 03 — SPATIAL STUDY (REVERSE ASYMMETRIC SPLIT LAYOUT WITH CLIP EXPANSION & OVERLAP) */}
-        <section className="monograph-scene py-[80px] md:py-[140px] lg:py-[180px] w-full min-h-[85vh] flex flex-col-reverse md:flex-row items-center justify-between gap-[6%] border-b border-[#151515]/15 -mt-[100px]">
+        <section
+          data-admin-id="work.spatialStudy.background"
+          data-admin-page="work"
+          data-admin-section="spatialStudy"
+          data-admin-type="background-image"
+          data-admin-name="Spatial Study Background"
+          className="monograph-scene py-[80px] md:py-[140px] lg:py-[180px] w-full min-h-[85vh] flex flex-col-reverse md:flex-row items-center justify-between gap-[6%] border-b border-[#151515]/15 -mt-[100px]"
+        >
           <div className="w-full md:w-[34%] flex flex-col space-y-[32px] mb-12 md:mb-0">
             <span className="mono-label text-[10px] md:text-[11px] tracking-[0.25em] uppercase text-[#151515]/75 font-mono font-medium block">
               02 / SPATIAL STUDY
@@ -385,6 +408,10 @@ export default function DreamscapesExperience() {
             showWipe
             parallaxSpeed={20}
             customStyle={getImageFilterStyles(p05.style)}
+            dataAdminId="work.spatialStudy.image01"
+            dataAdminName="Spatial Study Image 01"
+            dataAdminSection="spatialStudy"
+            dataAdminPage="work"
           />
         </section>
 
@@ -435,6 +462,10 @@ export default function DreamscapesExperience() {
               showWipe
               parallaxSpeed={16}
               customStyle={getImageFilterStyles(p08.style)}
+              dataAdminId="work.architecturalArchive.image01"
+              dataAdminName="Architectural Archive Image 01"
+              dataAdminSection="architecturalArchive"
+              dataAdminPage="work"
             />
 
             <ArchitecturalImagePlate

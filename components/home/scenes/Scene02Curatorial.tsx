@@ -229,7 +229,12 @@ export default function Scene02Curatorial() {
             {/* Massive Display Headline */}
             <h2
               ref={headlineWordsRef}
-              className="font-serif font-light text-[32px] sm:text-[44px] md:text-[56px] lg:text-[68px] leading-[0.95] tracking-[-0.035em] text-[#110F0E] mb-6 md:mb-8 will-change-transform"
+              data-admin-id="home.curatorial.heading"
+              data-admin-page="home"
+              data-admin-section="curatorial"
+              data-admin-type="text"
+              data-admin-name="Curatorial Heading"
+              className="font-serif font-light text-[32px] sm:text-[44px] md:text-[56px] lg:text-[68px] leading-[0.95] tracking-[-0.035em] text-[#110F0E] mb-6 md:mb-8 will-change-transform cursor-pointer"
             >
               {words.map((w, i) => (
                 <span
@@ -282,7 +287,13 @@ export default function Scene02Curatorial() {
           <div className="lg:col-span-5 flex items-center justify-center">
             <div
               ref={imagePlateRef}
-              className="relative w-full max-w-[520px] aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl border border-[#110F0E]/15 will-change-transform bg-[#1B1917]"
+              data-admin-id="home.curatorial.plate"
+              data-admin-page="home"
+              data-admin-section="curatorial"
+              data-admin-type="image"
+              data-admin-name="Curatorial Photographic Plate"
+              data-admin-caption="Concrete Sanctuary Void"
+              className="relative w-full max-w-[520px] aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl border border-[#110F0E]/15 will-change-transform bg-[#1B1917] cursor-pointer"
             >
               <div
                 ref={imageInnerRef}
@@ -295,11 +306,11 @@ export default function Scene02Curatorial() {
                   sizes="(max-width: 1024px) 90vw, 45vw"
                   className="object-cover object-center filter contrast-[1.12]"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20 pointer-events-none" />
               </div>
 
               {/* In-plate Plate Caption */}
-              <div className="absolute bottom-6 left-6 right-6 text-white z-10">
+              <div className="absolute bottom-6 left-6 right-6 text-white z-10 pointer-events-none">
                 <span className="text-[10px] uppercase font-mono tracking-[0.25em] text-white/70 block mb-1">
                   PLATE 01.1 — SPATIAL MONOGRAPH
                 </span>

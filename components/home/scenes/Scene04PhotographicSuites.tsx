@@ -90,6 +90,11 @@ export default function Scene04PhotographicSuites() {
     <section
       id="scene-04-photographic-suites"
       ref={containerRef}
+      data-admin-id="home.photographicSuites.background"
+      data-admin-page="home"
+      data-admin-section="photographicSuites"
+      data-admin-type="background-image"
+      data-admin-name="Photographic Suites Background"
       className="relative w-full h-[280vh] bg-[#EBE7E1] text-[#110F0E] z-10"
     >
       {/* Pinned Viewport Stage */}
@@ -99,7 +104,14 @@ export default function Scene04PhotographicSuites() {
       >
         {/* Top Eyebrow Header */}
         <div className="flex items-center justify-between border-b border-[#110F0E]/15 pb-4 z-20">
-          <div className="flex items-center space-x-3 text-[11px] uppercase tracking-[0.25em] font-mono text-[#110F0E]/70">
+          <div
+            data-admin-id="home.photographicSuites.heading"
+            data-admin-page="home"
+            data-admin-section="photographicSuites"
+            data-admin-type="text"
+            data-admin-name="Photographic Suites Heading"
+            className="flex items-center space-x-3 text-[11px] uppercase tracking-[0.25em] font-mono text-[#110F0E]/70"
+          >
             <span className="text-[#110F0E] font-medium">03</span>
             <span className="w-8 h-[1px] bg-[#110F0E]/30" />
             <span>PHOTOGRAPHIC SUITES & EXHIBITION CATALOGUE</span>
@@ -134,7 +146,13 @@ export default function Scene04PhotographicSuites() {
           {/* Plate A: Left Column (Monolith Perimeter) */}
           <div
             ref={plateARef}
-            className="hidden md:block md:col-span-3 aspect-[3/4] rounded-xl overflow-hidden shadow-xl border border-[#110F0E]/15 will-change-transform bg-[#1C1A18]"
+            data-admin-id="home.photographicSuites.image01"
+            data-admin-page="home"
+            data-admin-section="photographicSuites"
+            data-admin-type="image"
+            data-admin-name="Photographic Plate 01 (Monolith Perimeter)"
+            data-admin-caption="Monolith Perimeter"
+            className="hidden md:block md:col-span-3 aspect-[3/4] rounded-xl overflow-hidden shadow-xl border border-[#110F0E]/15 will-change-transform bg-[#1C1A18] cursor-pointer"
           >
             <div className="relative w-full h-full">
               <Image
@@ -144,7 +162,7 @@ export default function Scene04PhotographicSuites() {
                 sizes="25vw"
                 className="object-cover object-center filter contrast-[1.1]"
               />
-              <div className="absolute bottom-4 left-4 right-4 text-white z-10">
+              <div className="absolute bottom-4 left-4 right-4 text-white z-10 pointer-events-none">
                 <span className="text-[9px] uppercase font-mono tracking-[0.25em] text-white/70 block">
                   PLATE 02.A
                 </span>
@@ -161,7 +179,13 @@ export default function Scene04PhotographicSuites() {
           {/* Plate B: Center Dominant (Tokyo Concrete Void) */}
           <div
             ref={plateBRef}
-            className="col-span-1 md:col-span-6 aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl border border-[#110F0E]/20 will-change-transform bg-[#1B1917]"
+            data-admin-id="home.photographicSuites.image02"
+            data-admin-page="home"
+            data-admin-section="photographicSuites"
+            data-admin-type="image"
+            data-admin-name="Photographic Plate 02 (Concrete Sanctuary Void)"
+            data-admin-caption="Concrete Sanctuary Void"
+            className="col-span-1 md:col-span-6 aspect-[4/5] rounded-2xl overflow-hidden shadow-2xl border border-[#110F0E]/20 will-change-transform bg-[#1B1917] cursor-pointer"
           >
             <div className="relative w-full h-full">
               <Image
@@ -171,8 +195,8 @@ export default function Scene04PhotographicSuites() {
                 sizes="50vw"
                 className="object-cover object-center filter contrast-[1.15]"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20" />
-              <div className="absolute bottom-8 left-8 right-8 text-white z-10">
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-black/20 pointer-events-none" />
+              <div className="absolute bottom-8 left-8 right-8 text-white z-10 pointer-events-none">
                 <span className="text-[10px] uppercase font-mono tracking-[0.3em] text-white/70 block mb-1">
                   PLATE 02.B — PRIMARY EXHIBIT
                 </span>
@@ -193,7 +217,13 @@ export default function Scene04PhotographicSuites() {
           {/* Plate C: Right Column (Silent Profile Portrait) */}
           <div
             ref={plateCRef}
-            className="hidden md:block md:col-span-3 aspect-[3/4] rounded-xl overflow-hidden shadow-xl border border-[#110F0E]/15 will-change-transform bg-[#1C1A18]"
+            data-admin-id="home.photographicSuites.image03"
+            data-admin-page="home"
+            data-admin-section="photographicSuites"
+            data-admin-type="image"
+            data-admin-name="Photographic Plate 03 (Silent Profile)"
+            data-admin-caption="Silent Profile"
+            className="hidden md:block md:col-span-3 aspect-[3/4] rounded-xl overflow-hidden shadow-xl border border-[#110F0E]/15 will-change-transform bg-[#1C1A18] cursor-pointer"
           >
             <div className="relative w-full h-full">
               <Image
@@ -203,7 +233,7 @@ export default function Scene04PhotographicSuites() {
                 sizes="25vw"
                 className="object-cover object-center filter contrast-[1.12]"
               />
-              <div className="absolute bottom-4 left-4 right-4 text-white z-10">
+              <div className="absolute bottom-4 left-4 right-4 text-white z-10 pointer-events-none">
                 <span className="text-[9px] uppercase font-mono tracking-[0.25em] text-white/70 block">
                   PLATE 02.C
                 </span>

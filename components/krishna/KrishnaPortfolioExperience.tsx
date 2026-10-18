@@ -4,7 +4,6 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import Lenis from "lenis";
 import { usePageTransition } from "@/components/PageTransition";
 import { Download, ArrowUpRight, ArrowLeft } from "lucide-react";
 
@@ -124,65 +123,72 @@ export default function KrishnaPortfolioExperience() {
   const [selected, setSelected] = useState<number | null>(null);
 
   useEffect(() => {
-    gsap.registerPlugin(ScrollTrigger);
-    const lenis = new Lenis({ duration: 1.1, smoothWheel: true });
-    lenis.on("scroll", ScrollTrigger.update);
-    const raf = (time: number) => {
-      lenis.raf(time * 1000);
-      requestAnimationFrame(raf);
-    };
-    const animId = requestAnimationFrame(raf);
+    let animId: number;
+    let localLenis: any = null;
+    let ctx: any = null;
 
-    const ctx = gsap.context(() => {
-      gsap.utils.toArray<HTMLElement>(".reveal").forEach((el) => {
-        gsap.fromTo(
-          el,
-          { yPercent: 14, opacity: 0 },
-          {
-            yPercent: 0,
-            opacity: 1,
-            duration: 1.2,
-            ease: "expo.out",
-            scrollTrigger: { trigger: el, start: "top 84%" },
-          }
-        );
-      });
+    import("lenis").then(({ default: LenisClass }) => {
+      gsap.registerPlugin(ScrollTrigger);
+      const lenis = new LenisClass({ duration: 1.1, smoothWheel: true });
+      localLenis = lenis;
+      lenis.on("scroll", ScrollTrigger.update);
+      const raf = (time: number) => {
+        lenis.raf(time * 1000);
+        animId = requestAnimationFrame(raf);
+      };
+      animId = requestAnimationFrame(raf);
 
-      gsap.utils.toArray<HTMLElement>(".parallax img").forEach((img) => {
-        gsap.fromTo(
-          img,
-          { yPercent: -8 },
-          { yPercent: 8, ease: "none", scrollTrigger: { trigger: img, scrub: true } }
-        );
-      });
+      ctx = gsap.context(() => {
+        gsap.utils.toArray<HTMLElement>(".reveal").forEach((el) => {
+          gsap.fromTo(
+            el,
+            { yPercent: 14, opacity: 0 },
+            {
+              yPercent: 0,
+              opacity: 1,
+              duration: 1.2,
+              ease: "expo.out",
+              scrollTrigger: { trigger: el, start: "top 84%" },
+            }
+          );
+        });
 
-      gsap.to(".horizontal-track", {
-        xPercent: -42,
-        ease: "none",
-        scrollTrigger: {
-          trigger: ".horizontal-section",
-          pin: true,
-          scrub: 1,
-          end: "+=1800",
-        },
-      });
+        gsap.utils.toArray<HTMLElement>(".parallax img").forEach((img) => {
+          gsap.fromTo(
+            img,
+            { yPercent: -8 },
+            { yPercent: 8, ease: "none", scrollTrigger: { trigger: img, scrub: true } }
+          );
+        });
 
-      gsap.to(document.documentElement, {
-        "--darkness": 1,
-        ease: "none",
-        scrollTrigger: {
-          trigger: ".dark-threshold",
-          start: "top 65%",
-          end: "bottom 25%",
-          scrub: true,
-        },
+        gsap.to(".horizontal-track", {
+          xPercent: -42,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".horizontal-section",
+            pin: true,
+            scrub: 1,
+            end: "+=1800",
+          },
+        });
+
+        gsap.to(document.documentElement, {
+          "--darkness": 1,
+          ease: "none",
+          scrollTrigger: {
+            trigger: ".dark-threshold",
+            start: "top 65%",
+            end: "bottom 25%",
+            scrub: true,
+          },
+        });
       });
     });
 
     return () => {
-      cancelAnimationFrame(animId);
-      ctx.revert();
-      lenis.destroy();
+      if (animId) cancelAnimationFrame(animId);
+      if (ctx) ctx.revert();
+      if (localLenis) localLenis.destroy();
       document.documentElement.style.removeProperty("--darkness");
     };
   }, []);

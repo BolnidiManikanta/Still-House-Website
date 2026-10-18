@@ -308,6 +308,11 @@ export default function Scene01Hero() {
     <section
       id="scene-01-hero"
       ref={containerRef}
+      data-admin-id="home.hero.background"
+      data-admin-page="home"
+      data-admin-section="hero"
+      data-admin-type="background-image"
+      data-admin-name="Hero Background"
       className="relative w-full h-[320vh] bg-[#EBE7E1] z-10"
     >
       {/* Pinned Viewport Stage */}
@@ -338,6 +343,12 @@ export default function Scene01Hero() {
         {/* ------------------------------------------------------------------ */}
         <div
           ref={heroFrameRef}
+          data-admin-id="home.hero.plate01"
+          data-admin-page="home"
+          data-admin-section="hero"
+          data-admin-type="image"
+          data-admin-name="Hero Plate 01 (Kyoto Monolith)"
+          data-admin-caption={heroData.plate01Title}
           className="relative w-full h-full overflow-hidden will-change-transform border border-[#110F0E]/15 flex items-center justify-center bg-[#2A2724]"
         >
           {/* Inner Image Container (Free to zoom, pan, and crop) */}
@@ -356,7 +367,7 @@ export default function Scene01Hero() {
               className="object-cover object-center transition-all duration-300"
             />
             {/* Cinematic Gradient Atmosphere */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/25 to-black/45" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/25 to-black/45 pointer-events-none" />
           </div>
 
           {/* Vignette & Optical Film Border */}
@@ -377,6 +388,12 @@ export default function Scene01Hero() {
         {/* ------------------------------------------------------------------ */}
         <div
           ref={imageBWrapperRef}
+          data-admin-id="home.hero.plate02"
+          data-admin-page="home"
+          data-admin-section="hero"
+          data-admin-type="image"
+          data-admin-name="Hero Plate 02 (Sanctuary Void)"
+          data-admin-caption={heroData.plate02Title}
           className="absolute right-6 md:right-12 w-[88%] md:w-[48%] h-[60vh] md:h-[84vh] overflow-hidden will-change-transform z-20 border border-[#110F0E]/20 shadow-2xl bg-[#1C1A18] opacity-0"
         >
           <div className="relative w-full h-full">
@@ -389,9 +406,9 @@ export default function Scene01Hero() {
               style={getImageFilterStyles(heroData.plate02Style)}
               className="object-cover object-center transition-all duration-300"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/30" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/75 via-transparent to-black/30 pointer-events-none" />
             
-            <div className="absolute bottom-8 left-8 right-8 text-white z-10">
+            <div className="absolute bottom-8 left-8 right-8 text-white z-10 pointer-events-none">
               <span className="text-[10px] uppercase font-mono tracking-[0.3em] text-white/65 block mb-2">
                 TRANSITIONING · SUITE 02
               </span>
@@ -410,10 +427,10 @@ export default function Scene01Hero() {
         {/* ------------------------------------------------------------------ */}
         <div className="absolute inset-0 pointer-events-none z-30 flex flex-col justify-between p-6 md:p-12 lg:p-16">
           {/* Top Monograph Identifier & Status */}
-          <div className="flex justify-between items-start pt-16 md:pt-14">
+          <div className="flex justify-between items-start pt-16 md:pt-14 pointer-events-none">
             <div
               ref={metadataLeftRef}
-              className="will-change-transform text-[11px] uppercase tracking-[0.25em] font-mono text-white/85 drop-shadow-md"
+              className="will-change-transform text-[11px] uppercase tracking-[0.25em] font-mono text-white/85 drop-shadow-md pointer-events-auto"
             >
               <span className="block font-medium">{heroData.volumeTag}</span>
               <span className="text-white/60 block mt-0.5">{heroData.publishedDate}</span>
@@ -421,7 +438,7 @@ export default function Scene01Hero() {
 
             <div
               ref={metadataRightRef}
-              className="will-change-transform text-right text-[11px] uppercase tracking-[0.25em] font-mono text-white/85 drop-shadow-md hidden sm:block"
+              className="will-change-transform text-right text-[11px] uppercase tracking-[0.25em] font-mono text-white/85 drop-shadow-md hidden sm:block pointer-events-auto"
             >
               <span className="block font-medium">{heroData.locationArchive}</span>
               <span className="text-white/60 block mt-0.5">{heroData.archiveLabel}</span>
@@ -429,18 +446,28 @@ export default function Scene01Hero() {
           </div>
 
           {/* Center Display Typography: DREAMSCAPES + CREATING THE UNEXPECTED */}
-          <div className="my-auto text-center flex flex-col items-center max-w-[1400px] mx-auto w-full px-4">
+          <div className="my-auto text-center flex flex-col items-center max-w-[1400px] mx-auto w-full px-4 pointer-events-none">
             <h1
               ref={dreamscapesTitleRef}
+              data-admin-id="home.hero.title"
+              data-admin-page="home"
+              data-admin-section="hero"
+              data-admin-type="text"
+              data-admin-name="Hero Monograph Title"
               style={getTypographyStyles(heroData.titleTypography)}
-              className="font-serif font-light text-[clamp(52px,12vw,170px)] leading-[0.84] text-[#F5F3EE] uppercase will-change-transform tracking-[-0.03em] drop-shadow-2xl transition-all duration-200"
+              className="font-serif font-light text-[clamp(52px,12vw,170px)] leading-[0.84] text-[#F5F3EE] uppercase will-change-transform tracking-[-0.03em] drop-shadow-2xl transition-all duration-200 pointer-events-auto cursor-default"
             >
               {heroData.monographTitle}
             </h1>
 
             <div
               ref={headlineRef}
-              className="mt-6 md:mt-8 will-change-transform flex items-center justify-center space-x-3 md:space-x-6"
+              data-admin-id="home.hero.subtitle"
+              data-admin-page="home"
+              data-admin-section="hero"
+              data-admin-type="text"
+              data-admin-name="Hero Subheading"
+              className="mt-6 md:mt-8 will-change-transform flex items-center justify-center space-x-3 md:space-x-6 pointer-events-auto"
             >
               <span className="w-8 md:w-16 h-[1px] bg-white/40" />
               <h2 className="font-sans font-light text-[13px] sm:text-[16px] md:text-[20px] uppercase tracking-[0.32em] text-white/90 drop-shadow-md">
@@ -451,7 +478,12 @@ export default function Scene01Hero() {
 
             <p
               ref={monographTagRef}
-              className="mt-4 md:mt-6 font-sans font-light text-[12px] md:text-[14px] uppercase tracking-[0.22em] text-white/70 max-w-[620px] text-center will-change-transform"
+              data-admin-id="home.hero.secondaryNarrative"
+              data-admin-page="home"
+              data-admin-section="hero"
+              data-admin-type="text"
+              data-admin-name="Hero Secondary Narrative"
+              className="mt-4 md:mt-6 font-sans font-light text-[12px] md:text-[14px] uppercase tracking-[0.22em] text-white/70 max-w-[620px] text-center will-change-transform pointer-events-auto"
             >
               {heroData.headlineSecondary}
             </p>
@@ -463,6 +495,11 @@ export default function Scene01Hero() {
             >
               <Link
                 id="hero-contact-reviews-button"
+                data-admin-id="home.hero.cta"
+                data-admin-page="home"
+                data-admin-section="hero"
+                data-admin-type="button"
+                data-admin-name="Hero Action Button"
                 href={heroData.ctaButtonLink || "/contact-reviews"}
                 prefetch={true}
                 className="group inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-white/95 hover:bg-white text-[#111111] backdrop-blur-md text-[11px] font-mono uppercase tracking-[0.2em] font-semibold transition-all duration-200 active:scale-95 shadow-xl hover:shadow-2xl border border-white/50 cursor-pointer"

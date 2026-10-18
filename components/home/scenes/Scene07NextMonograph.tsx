@@ -141,7 +141,13 @@ export default function Scene07NextMonograph() {
         {/* Dynamic Expanding Background Photographic Plate */}
         <div
           ref={cardFrameRef}
-          className="absolute inset-0 z-0 will-change-transform bg-[#1B1917]"
+          data-admin-id="home.nextMonograph.banner"
+          data-admin-page="home"
+          data-admin-section="nextMonograph"
+          data-admin-type="image"
+          data-admin-name="Blueyard Next Monograph Banner"
+          data-admin-caption={nextData.title}
+          className="absolute inset-0 z-0 will-change-transform bg-[#1B1917] cursor-pointer"
         >
           <div ref={imageInnerRef} className="relative w-full h-full will-change-transform">
             <Image
@@ -152,7 +158,7 @@ export default function Scene07NextMonograph() {
               unoptimized={nextData.bannerImage.startsWith("data:")}
               className="object-cover object-center filter contrast-[1.15] saturate-[1.05]"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#E2DED6] via-[#E2DED6]/65 to-[#E2DED6]/80" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#E2DED6] via-[#E2DED6]/65 to-[#E2DED6]/80 pointer-events-none" />
           </div>
         </div>
 
