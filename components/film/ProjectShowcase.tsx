@@ -144,3 +144,5 @@ export const ProjectShowcase: React.FC<ProjectShowcaseProps> = ({
     </div>
   );
 };
+
+export default ProjectShowcase;

@@ -40,3 +40,5 @@ export const StatementSection: React.FC = () => {
     </section>
   );
 };
+
+export default StatementSection;

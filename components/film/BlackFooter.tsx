@@ -163,3 +163,5 @@ export const BlackFooter: React.FC<BlackFooterProps> = ({ onScrollToTop }) => {
     </footer>
   );
 };
+
+export default BlackFooter;

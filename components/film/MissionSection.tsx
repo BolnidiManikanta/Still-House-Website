@@ -73,3 +73,5 @@ export const MissionSection: React.FC = () => {
     </section>
   );
 };
+
+export default MissionSection;

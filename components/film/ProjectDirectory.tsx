@@ -91,3 +91,5 @@ export const ProjectDirectory: React.FC<ProjectDirectoryProps> = ({
     </section>
   );
 };
+
+export default ProjectDirectory;

@@ -102,3 +102,5 @@ export const ApproachSection: React.FC = () => {
     </section>
   );
 };
+
+export default ApproachSection;

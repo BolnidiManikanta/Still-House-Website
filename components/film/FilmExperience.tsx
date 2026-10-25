@@ -85,3 +85,5 @@ export default function FilmExperience() {
     </div>
   );
 }
+
+export { FilmExperience };
