@@ -16,30 +16,53 @@ export default function AtmosphereOverlay() {
   useEffect(() => {
     if (pathname === "/admin") return;
     let animationFrameId: number;
+    let isPaused = false;
     let time = 0;
+    let lastTime = 0;
 
-    const animateAtmosphere = () => {
-      time += 0.004;
-
-      if (fog1Ref.current) {
-        const x1 = Math.sin(time * 0.4) * 30;
-        const y1 = Math.cos(time * 0.3) * 20;
-        fog1Ref.current.style.transform = `translate3d(${x1}px, ${y1}px, 0)`;
+    const animateAtmosphere = (now: number) => {
+      if (document.hidden) {
+        isPaused = true;
+        return;
       }
+      isPaused = false;
 
-      if (lightRaysRef.current) {
-        const opacity = fogOpacity + Math.sin(time * 0.5) * 0.008;
-        const rotate = Math.sin(time * 0.2) * 3;
-        lightRaysRef.current.style.opacity = Math.max(0, opacity).toString();
-        lightRaysRef.current.style.transform = `rotate(${rotate}deg)`;
+      // Throttle atmosphere drift to ~30fps for 50% CPU savings
+      if (now - lastTime >= 33) {
+        lastTime = now;
+        time += 0.006;
+
+        if (fog1Ref.current) {
+          const x1 = Math.sin(time * 0.4) * 30;
+          const y1 = Math.cos(time * 0.3) * 20;
+          fog1Ref.current.style.transform = `translate3d(${x1.toFixed(1)}px, ${y1.toFixed(1)}px, 0)`;
+        }
+
+        if (lightRaysRef.current) {
+          const opacity = fogOpacity + Math.sin(time * 0.5) * 0.008;
+          const rotate = Math.sin(time * 0.2) * 3;
+          lightRaysRef.current.style.opacity = Math.max(0, opacity).toFixed(3);
+          lightRaysRef.current.style.transform = `rotate(${rotate.toFixed(1)}deg)`;
+        }
       }
 
       animationFrameId = requestAnimationFrame(animateAtmosphere);
     };
 
+    const handleVisibilityChange = () => {
+      if (!document.hidden && isPaused) {
+        lastTime = performance.now();
+        animationFrameId = requestAnimationFrame(animateAtmosphere);
+      }
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
     animationFrameId = requestAnimationFrame(animateAtmosphere);
 
-    return () => cancelAnimationFrame(animationFrameId);
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      document.removeEventListener("visibilitychange", handleVisibilityChange);
+    };
   }, [fogOpacity, pathname]);
 
   if (pathname === "/admin") {
@@ -59,13 +82,13 @@ export default function AtmosphereOverlay() {
       {/* Subtle Film Grain */}
       <div className="texture-film-grain opacity-[0.02] pointer-events-none" />
 
-      {/* Extremely Subtle Moving Atmosphere (Opacity controlled via config) */}
+      {/* Extremely Subtle Moving Atmosphere (Smooth gradient replaces expensive 100px box filter) */}
       <div
         ref={fog1Ref}
-        className="fixed inset-0 pointer-events-none z-[25] filter blur-[100px] transition-opacity duration-500"
+        className="fixed inset-0 pointer-events-none z-[25] transition-opacity duration-500 will-change-transform"
         style={{
           opacity: fogOpacity,
-          background: "radial-gradient(circle at 40% 30%, rgba(200,195,185,0.4) 0%, transparent 60%)",
+          background: "radial-gradient(ellipse 65% 55% at 40% 30%, rgba(200,195,185,0.35) 0%, rgba(200,195,185,0.15) 35%, transparent 70%)",
         }}
       />
 

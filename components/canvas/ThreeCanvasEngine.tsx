@@ -12,16 +12,27 @@ export default function ThreeCanvasEngine() {
     if (!gl) return;
 
     let animationFrameId: number;
-    let width = (canvas.width = window.innerWidth);
-    let height = (canvas.height = window.innerHeight);
+    // Render to an optimized lightweight buffer (max 960x540), upsampled by CSS for 75% GPU savings
+    const getTargetDims = () => {
+      const scale = Math.min(1, 960 / Math.max(window.innerWidth, 1));
+      return {
+        w: Math.round(window.innerWidth * scale),
+        h: Math.round(window.innerHeight * scale),
+      };
+    };
+
+    let dims = getTargetDims();
+    let width = (canvas.width = dims.w);
+    let height = (canvas.height = dims.h);
 
     const handleResize = () => {
       if (!canvas) return;
-      width = canvas.width = window.innerWidth;
-      height = canvas.height = window.innerHeight;
+      dims = getTargetDims();
+      width = canvas.width = dims.w;
+      height = canvas.height = dims.h;
       gl.viewport(0, 0, width, height);
     };
-    window.addEventListener("resize", handleResize);
+    window.addEventListener("resize", handleResize, { passive: true });
 
     // GLSL Vertex Shader
     const vsSource = `
@@ -126,31 +137,36 @@ export default function ThreeCanvasEngine() {
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
 
     let startTime = performance.now();
+    let lastRenderTime = 0;
 
-    const render = () => {
+    const render = (now: number) => {
       if (document.hidden) {
         animationFrameId = requestAnimationFrame(render);
         return;
       }
 
-      try {
-        if (gl.isContextLost && gl.isContextLost()) return;
-        const currentTime = (performance.now() - startTime) * 0.001;
+      // Throttle shader redraws to ~30fps for smooth performance without heating the GPU
+      if (now - lastRenderTime >= 33) {
+        lastRenderTime = now;
+        try {
+          if (gl.isContextLost && gl.isContextLost()) return;
+          const currentTime = (now - startTime) * 0.001;
 
-        gl.viewport(0, 0, width, height);
-        gl.uniform2f(resLoc, width, height);
-        gl.uniform1f(timeLoc, currentTime);
-        gl.uniform2f(mouseLoc, mouseX, mouseY);
+          gl.viewport(0, 0, width, height);
+          gl.uniform2f(resLoc, width, height);
+          gl.uniform1f(timeLoc, currentTime);
+          gl.uniform2f(mouseLoc, mouseX, mouseY);
 
-        gl.drawArrays(gl.TRIANGLES, 0, 6);
-      } catch {
-        return;
+          gl.drawArrays(gl.TRIANGLES, 0, 6);
+        } catch {
+          return;
+        }
       }
 
       animationFrameId = requestAnimationFrame(render);
     };
 
-    render();
+    animationFrameId = requestAnimationFrame(render);
 
     return () => {
       window.removeEventListener("resize", handleResize);

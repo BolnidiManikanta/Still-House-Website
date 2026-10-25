@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useState, useEffect, useCallback, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, useCallback, useMemo, ReactNode } from "react";
 import {
   SiteConfig,
   GlobalEffectsConfig,
@@ -570,38 +570,69 @@ export const SiteConfigProvider: React.FC<{ children: ReactNode }> = ({ children
     }
   }, [draftConfig]);
 
+  const contextValue = useMemo<SiteConfigContextType>(
+    () => ({
+      config,
+      draftConfig,
+      updateEffects,
+      updateHome,
+      updateHomeHero,
+      updateHomeCuratorial,
+      updateHomeNextMonograph,
+      updateWork,
+      updateWorkPlate,
+      updateProject,
+      updateFilm,
+      updateKrishna,
+      updateContactReviews,
+      updateElementOverride,
+      resetElementOverride,
+      resetPageOverrides,
+      saveDraft,
+      publishLive,
+      resetToDefaults,
+      resetSection,
+      importConfig,
+      exportConfig,
+      isAdmin,
+      setIsAdmin,
+      lastSaved,
+      lastPublished,
+      hasUnpublishedChanges,
+    }),
+    [
+      config,
+      draftConfig,
+      updateEffects,
+      updateHome,
+      updateHomeHero,
+      updateHomeCuratorial,
+      updateHomeNextMonograph,
+      updateWork,
+      updateWorkPlate,
+      updateProject,
+      updateFilm,
+      updateKrishna,
+      updateContactReviews,
+      updateElementOverride,
+      resetElementOverride,
+      resetPageOverrides,
+      saveDraft,
+      publishLive,
+      resetToDefaults,
+      resetSection,
+      importConfig,
+      exportConfig,
+      isAdmin,
+      setIsAdmin,
+      lastSaved,
+      lastPublished,
+      hasUnpublishedChanges,
+    ]
+  );
+
   return (
-    <SiteConfigContext.Provider
-      value={{
-        config,
-        draftConfig,
-        updateEffects,
-        updateHome,
-        updateHomeHero,
-        updateHomeCuratorial,
-        updateHomeNextMonograph,
-        updateWork,
-        updateWorkPlate,
-        updateProject,
-        updateFilm,
-        updateKrishna,
-        updateContactReviews,
-        updateElementOverride,
-        resetElementOverride,
-        resetPageOverrides,
-        saveDraft,
-        publishLive,
-        resetToDefaults,
-        resetSection,
-        importConfig,
-        exportConfig,
-        isAdmin,
-        setIsAdmin,
-        lastSaved,
-        lastPublished,
-        hasUnpublishedChanges,
-      }}
-    >
+    <SiteConfigContext.Provider value={contextValue}>
       {children}
     </SiteConfigContext.Provider>
   );

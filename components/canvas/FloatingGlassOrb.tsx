@@ -28,32 +28,30 @@ export default function FloatingGlassOrb() {
 
     let currentX = 0;
     let currentY = 0;
+    let time = 0;
 
     const render = () => {
+      if (document.hidden) {
+        animId = requestAnimationFrame(render);
+        return;
+      }
+
+      time += 0.02;
       currentX += (orbX - currentX) * 0.06;
       currentY += (orbY - currentY) * 0.06;
+      const breatheY = Math.sin(time) * 10;
 
       if (orb) {
-        orb.style.transform = `translate3d(${currentX.toFixed(2)}px, ${currentY.toFixed(2)}px, 0) rotate(${ (currentX * 0.1).toFixed(2) }deg)`;
+        orb.style.transform = `translate3d(${currentX.toFixed(1)}px, ${(currentY + breatheY).toFixed(1)}px, 0) rotate(${(currentX * 0.08).toFixed(1)}deg)`;
       }
 
       animId = requestAnimationFrame(render);
     };
 
-    // Continuous floating breathing animation
-    const tween = gsap.to(orb, {
-      y: "-=15",
-      duration: 3.5,
-      ease: "sine.inOut",
-      repeat: -1,
-      yoyo: true,
-    });
-
     window.addEventListener("mousemove", handleMouseMove, { passive: true });
     animId = requestAnimationFrame(render);
 
     return () => {
-      tween.kill();
       window.removeEventListener("mousemove", handleMouseMove);
       cancelAnimationFrame(animId);
     };

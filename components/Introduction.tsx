@@ -16,27 +16,25 @@ export default function Introduction() {
       const section = sectionRef.current;
       if (!section) return;
 
-      // Scene Entrance & Exit Transitions (blur 20px -> 0 -> 20px, scale 1.05 -> 1 -> 0.96)
+      // Scene Entrance & Exit Transitions (GPU accelerated opacity and scale)
       gsap.fromTo(
         section,
-        { opacity: 0, filter: "blur(20px)", scale: 1.05 },
+        { opacity: 0, scale: 1.02 },
         {
           opacity: 1,
-          filter: "blur(0px)",
           scale: 1.0,
-          duration: 1.6,
-          ease: "power4.out",
+          duration: 1.4,
+          ease: "power3.out",
           scrollTrigger: {
             trigger: section,
-            start: "top 80%",
+            start: "top 85%",
           },
         }
       );
 
       gsap.to(section, {
         opacity: 0,
-        filter: "blur(20px)",
-        scale: 0.96,
+        scale: 0.98,
         ease: "power2.in",
         scrollTrigger: {
           trigger: section,

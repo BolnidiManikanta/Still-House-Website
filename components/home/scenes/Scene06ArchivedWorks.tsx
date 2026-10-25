@@ -2,9 +2,10 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { usePageTransition } from "@/components/PageTransition";
+import { useNavigation } from "@/components/InstantViewRouter";
 
 interface ArchiveWork {
   id: string;
@@ -66,7 +67,7 @@ export default function Scene06ArchivedWorks() {
   const cardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const progressPillRef = useRef<HTMLDivElement>(null);
   const [activeWorkIndex, setActiveWorkIndex] = useState(0);
-  const { triggerTransition } = usePageTransition();
+  const { navigateTo } = useNavigation();
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -87,7 +88,7 @@ export default function Scene06ArchivedWorks() {
 
       // 2. Active Card Determination (0 -> 4)
       const currentActive = Math.min(3, Math.floor(p * 4));
-      setActiveWorkIndex(currentActive);
+      setActiveWorkIndex((prev) => (prev === currentActive ? prev : currentActive));
 
       // 3. Transform the 4 Cards Dynamically
       cardRefs.current.forEach((card, idx) => {
@@ -100,10 +101,9 @@ export default function Scene06ArchivedWorks() {
         const isDominant = dist < 0.7;
         const dominanceT = Math.max(0, 1 - dist); // 1.0 when active, down to 0
 
-        // Active card enlarges, comes forward, gains deep shadow
+        // Active card enlarges, comes forward, gains deep shadow (GPU accelerated)
         const scale = 0.88 + dominanceT * 0.24; // 0.88 -> 1.12
-        const opacity = 0.35 + dominanceT * 0.65; // 0.35 -> 1.00
-        const blur = (1 - dominanceT) * 3; // 3px blur for receding cards
+        const opacity = 0.45 + dominanceT * 0.55; // 0.45 -> 1.00
         const zIndex = Math.round(dominanceT * 30) + 10;
 
         // Differential Parallax Shift based on position
@@ -111,7 +111,6 @@ export default function Scene06ArchivedWorks() {
 
         card.style.transform = `translate3d(0, ${parallaxY.toFixed(1)}px, 0) scale(${scale.toFixed(3)})`;
         card.style.opacity = opacity.toFixed(3);
-        card.style.filter = blur > 0.2 ? `blur(${blur.toFixed(1)}px)` : "none";
         card.style.zIndex = zIndex.toString();
         card.style.boxShadow = isDominant
           ? "0 30px 80px rgba(0,0,0,0.35)"
@@ -171,15 +170,18 @@ export default function Scene06ArchivedWorks() {
         {/* Central Spatial Stage: 4 Living Asymmetric Cards */}
         <div className="relative my-auto w-full max-w-[1500px] mx-auto h-[66vh] md:h-[72vh] grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-8 items-center z-10">
           {archiveWorks.map((work, idx) => (
-            <div
+            <Link
               key={work.id}
-              ref={(el) => {
-                cardRefs.current[idx] = el;
+              href={work.link}
+              onClick={(e) => {
+                e.preventDefault();
+                navigateTo(work.link);
               }}
-              onClick={() => triggerTransition(work.link)}
+              ref={(el) => {
+                cardRefs.current[idx] = el as unknown as HTMLDivElement;
+              }}
               data-cursor="OPEN"
-              data-magnetic
-              className="relative w-full aspect-[3/4] md:aspect-[4/5] rounded-2xl overflow-hidden border border-[#110F0E]/15 cursor-pointer will-change-transform bg-[#1B1917] group"
+              className="relative w-full aspect-[3/4] md:aspect-[4/5] rounded-2xl overflow-hidden border border-[#110F0E]/15 cursor-pointer will-change-transform bg-[#1B1917] group block"
             >
               <Image
                 src={work.image}
@@ -204,7 +206,7 @@ export default function Scene06ArchivedWorks() {
                   <span className="hidden sm:inline">{work.medium}</span>
                 </div>
               </div>
-            </div>
+            </Link>
           ))}
         </div>
 
@@ -219,12 +221,16 @@ export default function Scene06ArchivedWorks() {
           <div className="flex items-center space-x-4 text-[#110F0E]/60 text-[10px]">
             <span>MEDIUM: {activeWork.medium}</span>
             <span>YEAR: {activeWork.year}</span>
-            <button
-              onClick={() => triggerTransition(activeWork.link)}
-              className="text-[#110F0E] underline font-medium hover:text-black cursor-pointer"
+            <Link
+              href={activeWork.link}
+              onClick={(e) => {
+                e.preventDefault();
+                navigateTo(activeWork.link);
+              }}
+              className="text-[#110F0E] underline font-medium hover:text-black cursor-pointer inline-block"
             >
               EXPLORE MONOGRAPH →
-            </button>
+            </Link>
           </div>
         </div>
       </div>

@@ -9,12 +9,14 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import FloatingGlassOrb from "@/components/canvas/FloatingGlassOrb";
 import { useSiteConfig } from "@/lib/admin/siteConfigStore";
 import { getTypographyStyles, getImageFilterStyles } from "@/lib/admin/styleHelpers";
+import { useNavigation } from "@/components/InstantViewRouter";
 
 export default function Scene01Hero() {
   const containerRef = useRef<HTMLElement>(null);
   const stickyStageRef = useRef<HTMLDivElement>(null);
 
   const { config } = useSiteConfig();
+  const { navigateTo } = useNavigation();
   const heroData = config.home.hero;
 
   // Photographic Canvas Elements
@@ -47,30 +49,30 @@ export default function Scene01Hero() {
     const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (prefersReducedMotion) return;
 
+    let lastPct = -1;
+
     // Apply exact scroll scrub calculation
     const applyScrub = (p: number) => {
-      // 1. Progress Indicator Pill
+      // 1. Progress Indicator Pill (only update DOM when whole percentage changes)
       if (progressPillRef.current) {
         const pct = Math.min(100, Math.max(0, Math.round(p * 100)));
-        progressPillRef.current.innerText = `SCENE 01 · ${pct.toString().padStart(2, "0")}%`;
+        if (pct !== lastPct) {
+          lastPct = pct;
+          progressPillRef.current.innerText = `SCENE 01 · ${pct.toString().padStart(2, "0")}%`;
+        }
       }
 
       // 2. Scroll Prompt & Floating Orb Fade
       if (scrollPromptRef.current) {
         const promptOpacity = Math.max(0, 1 - p * 8); // Fades by p ≈ 0.12
-        scrollPromptRef.current.style.opacity = promptOpacity.toFixed(3);
+        scrollPromptRef.current.style.opacity = promptOpacity.toFixed(2);
       }
       if (orbWrapperRef.current) {
         const orbOpacity = Math.max(0, 1 - p * 3.5);
-        orbWrapperRef.current.style.opacity = orbOpacity.toFixed(3);
+        orbWrapperRef.current.style.opacity = orbOpacity.toFixed(2);
       }
 
       // 3. Hero Frame Morph & Insetting
-      // At p = 0: 100% full bleed, 0 radius
-      // At p = 0.20: insets into an architectural plate (92% width, 88vh, 20px radius)
-      // At p = 0.45: shifts to left-asymmetric framing (50% width on desktop, 86vh)
-      // At p = 0.75: Image B takes over
-      // At p = 1.00: Image B expands to 100% bleed
       if (heroFrameRef.current) {
         const isMobile = window.innerWidth < 768;
 
@@ -83,13 +85,11 @@ export default function Scene01Hero() {
           const w = 100 - t * (100 - targetW);
           const h = 100 - t * (100 - targetH);
           const r = t * targetRadius;
-          const shadow = t * 0.22;
 
-          heroFrameRef.current.style.width = `${w.toFixed(2)}%`;
-          heroFrameRef.current.style.height = `${h.toFixed(2)}vh`;
-          heroFrameRef.current.style.borderRadius = `${r.toFixed(1)}px`;
+          heroFrameRef.current.style.width = `${w.toFixed(1)}%`;
+          heroFrameRef.current.style.height = `${h.toFixed(1)}vh`;
+          heroFrameRef.current.style.borderRadius = `${r.toFixed(0)}px`;
           heroFrameRef.current.style.transform = `translate3d(0, 0, 0)`;
-          heroFrameRef.current.style.boxShadow = `0 ${Math.round(shadow * 80)}px ${Math.round(shadow * 140)}px rgba(0,0,0,${shadow.toFixed(3)})`;
         } else if (p <= 0.55) {
           const t = (p - 0.22) / 0.33;
           const baseW = isMobile ? 94 : 92;
@@ -102,11 +102,10 @@ export default function Scene01Hero() {
           const h = baseH - t * (baseH - targetH);
           const x = t * targetX;
 
-          heroFrameRef.current.style.width = `${w.toFixed(2)}%`;
-          heroFrameRef.current.style.height = `${h.toFixed(2)}vh`;
+          heroFrameRef.current.style.width = `${w.toFixed(1)}%`;
+          heroFrameRef.current.style.height = `${h.toFixed(1)}vh`;
           heroFrameRef.current.style.borderRadius = `20px`;
           heroFrameRef.current.style.transform = `translate3d(${x.toFixed(1)}%, 0, 0)`;
-          heroFrameRef.current.style.boxShadow = `0 24px 60px rgba(0,0,0,0.22)`;
         } else if (p <= 0.85) {
           // Plate A shrinks back as Plate B takes center stage
           const t = (p - 0.55) / 0.30;
@@ -501,7 +500,10 @@ export default function Scene01Hero() {
                 data-admin-type="button"
                 data-admin-name="Hero Action Button"
                 href={heroData.ctaButtonLink || "/contact-reviews"}
-                prefetch={true}
+                onClick={(e) => {
+                  e.preventDefault();
+                  navigateTo(heroData.ctaButtonLink || "/contact-reviews");
+                }}
                 className="group inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-white/95 hover:bg-white text-[#111111] backdrop-blur-md text-[11px] font-mono uppercase tracking-[0.2em] font-semibold transition-all duration-200 active:scale-95 shadow-xl hover:shadow-2xl border border-white/50 cursor-pointer"
                 data-cursor="OPEN"
                 data-magnetic

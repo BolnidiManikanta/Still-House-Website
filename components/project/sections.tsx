@@ -1,8 +1,10 @@
 "use client"
 
 import Image from "next/image"
+import Link from "next/link"
 import type { ReactNode } from "react"
 import { usePageTransition } from "@/components/PageTransition"
+import { useNavigation } from "@/components/InstantViewRouter"
 import { useSiteConfig } from "@/lib/admin/siteConfigStore"
 import { getTypographyStyles, getImageFilterStyles } from "@/lib/admin/styleHelpers"
 
@@ -98,6 +100,7 @@ function Media({
 
 export default function Sections({ slug }: { slug?: string } = {}) {
   const { triggerTransition } = usePageTransition()
+  const { navigateTo } = useNavigation()
   const { config } = useSiteConfig()
   const proj = config.project
 
@@ -323,7 +326,16 @@ export default function Sections({ slug }: { slug?: string } = {}) {
 
         <div className="flex min-h-[70svh] items-center">
           <Grid className="w-full">
-            <button onClick={() => triggerTransition("/portfolio")} className="col-span-12 block text-left" data-cursor="view">
+            <Link
+              href="/portfolio"
+              prefetch={true}
+              onClick={(e) => {
+                e.preventDefault()
+                navigateTo("/portfolio")
+              }}
+              className="col-span-12 block text-left cursor-pointer"
+              data-cursor="view"
+            >
               <div data-reveal="lines" className="font-serif font-light leading-[0.86] tracking-[-0.03em]">
                 <span className="block overflow-hidden">
                   <span className="pr-line-inner block text-[15vw] md:text-[11vw]">Meridian</span>
@@ -334,7 +346,7 @@ export default function Sections({ slug }: { slug?: string } = {}) {
                   </span>
                 </span>
               </div>
-            </button>
+            </Link>
           </Grid>
         </div>
 

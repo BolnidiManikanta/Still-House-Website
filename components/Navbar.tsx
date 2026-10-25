@@ -3,45 +3,60 @@
 import { useState, useEffect, useRef } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import Link from "next/link";
-import { usePageTransition } from "./PageTransition";
+import { useNavigation } from "./InstantViewRouter";
 
 export default function Navbar() {
   const router = useRouter();
-  const { triggerTransition } = usePageTransition();
   const pathname = usePathname();
+  const { currentPath, navigateTo } = useNavigation();
+  const activePath = currentPath || pathname;
+
   const [scrolled, setScrolled] = useState(false);
   const [visible, setVisible] = useState(true);
   const lastScrollY = useRef(0);
 
   useEffect(() => {
+    let scrollRaf: number | null = null;
+    let lastScrolled = false;
+    let lastVisible = true;
+
     const handleScroll = () => {
-      const currentScrollY = window.scrollY;
-      setScrolled(currentScrollY > 40);
+      if (scrollRaf !== null) return;
+      scrollRaf = requestAnimationFrame(() => {
+        scrollRaf = null;
+        const currentScrollY = window.scrollY;
+        const newScrolled = currentScrollY > 40;
+        if (newScrolled !== lastScrolled) {
+          lastScrolled = newScrolled;
+          setScrolled(newScrolled);
+        }
 
-      // On homepage, remain visible throughout hero scroll-scrubbed transformation
-      const isHomepageHero = pathname === "/" && currentScrollY < window.innerHeight * 2.5;
+        const isHomepageHero = activePath === "/" && currentScrollY < window.innerHeight * 2.5;
+        let newVisible = true;
+        if (isHomepageHero) {
+          newVisible = true;
+        } else if (currentScrollY > lastScrollY.current && currentScrollY > 120) {
+          newVisible = false;
+        } else {
+          newVisible = true;
+        }
+        lastScrollY.current = currentScrollY;
 
-      if (isHomepageHero) {
-        setVisible(true);
-      } else if (currentScrollY > lastScrollY.current && currentScrollY > 120) {
-        setVisible(false);
-      } else {
-        setVisible(true);
-      }
-      lastScrollY.current = currentScrollY;
+        if (newVisible !== lastVisible) {
+          lastVisible = newVisible;
+          setVisible(newVisible);
+        }
+      });
     };
 
     window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, [pathname]);
+    return () => {
+      if (scrollRaf !== null) cancelAnimationFrame(scrollRaf);
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, [activePath]);
 
-  const isWorkPage = pathname === "/work" || pathname === "/dreamscapes";
-  const isProjectPage = pathname.startsWith("/project");
-  const isPortfolioPage = pathname === "/portfolio";
-  const isFilmPage = pathname === "/film";
-  const hideNavButtons = isWorkPage || isProjectPage || isPortfolioPage || isFilmPage;
-
-  if (pathname === "/krishna" || pathname.startsWith("/contact") || pathname === "/reviews" || pathname === "/admin") {
+  if (activePath === "/admin") {
     return null;
   }
 
@@ -54,18 +69,13 @@ export default function Navbar() {
       }`}
     >
       {/* Brand / Logo Floating Glass Capsule */}
-      <div className="flex items-center" data-cursor="OPEN" data-magnetic>
+      <div className="flex items-center" data-cursor="OPEN">
         <Link
           id="nav-logo-btn"
           href="/"
-          prefetch={true}
           onClick={(e) => {
-            if (pathname === "/") {
-              e.preventDefault();
-              window.scrollTo({ top: 0, behavior: "smooth" });
-            } else {
-              triggerTransition("/");
-            }
+            e.preventDefault();
+            navigateTo("/");
           }}
           className="glass-capsule px-5 py-2.5 rounded-full text-left group focus:outline-none active:scale-95 transition-transform duration-150 cursor-pointer block"
         >
@@ -75,118 +85,120 @@ export default function Navbar() {
         </Link>
       </div>
 
-      {/* Navigation Pills: Hidden on work, project, portfolio, and film pages so only Still Studio button remains */}
-      {!hideNavButtons && (
-        <nav className="flex items-center space-x-2 md:space-x-3">
-          <Link
-            id="nav-work-btn"
-            href="/work"
-            prefetch={true}
-            onClick={() => triggerTransition("/work")}
-            className={`glass-capsule px-4 md:px-5 py-2.5 rounded-full text-[11px] uppercase tracking-[0.12em] font-medium focus:outline-none transition-all active:scale-95 duration-150 cursor-pointer ${
-              pathname === "/work" || pathname === "/dreamscapes"
-                ? "opacity-100 ring-1 ring-black/20"
-                : "opacity-85 hover:opacity-100"
-            }`}
-            data-cursor="OPEN"
-            data-magnetic
-          >
-            WORK
-          </Link>
+      {/* Navigation Pills: Accessible across all monograph pages for instantaneous 0ms page switching */}
+      <nav className="flex items-center space-x-1.5 sm:space-x-2 md:space-x-3 overflow-x-auto py-1 max-w-[82vw]">
+        <Link
+          id="nav-work-btn"
+          href="/work"
+          onClick={(e) => {
+            e.preventDefault();
+            navigateTo("/work");
+          }}
+          className={`glass-capsule px-4 md:px-5 py-2.5 rounded-full text-[11px] uppercase tracking-[0.12em] font-medium focus:outline-none transition-all active:scale-95 duration-150 cursor-pointer ${
+            activePath === "/work" || activePath === "/dreamscapes"
+              ? "opacity-100 ring-1 ring-black/20"
+              : "opacity-85 hover:opacity-100"
+          }`}
+          data-cursor="OPEN"
+        >
+          WORK
+        </Link>
 
-          <Link
-            id="nav-project-btn"
-            href="/project/blueyard"
-            prefetch={true}
-            onClick={() => triggerTransition("/project/blueyard")}
-            className={`glass-capsule px-4 md:px-5 py-2.5 rounded-full text-[11px] uppercase tracking-[0.12em] font-medium focus:outline-none transition-all active:scale-95 duration-150 cursor-pointer ${
-              pathname.startsWith("/project")
-                ? "opacity-100 ring-1 ring-black/20"
-                : "opacity-85 hover:opacity-100"
-            }`}
-            data-cursor="OPEN"
-            data-magnetic
-          >
-            PROJECT
-          </Link>
+        <Link
+          id="nav-project-btn"
+          href="/project/blueyard"
+          onClick={(e) => {
+            e.preventDefault();
+            navigateTo("/project/blueyard");
+          }}
+          className={`glass-capsule px-4 md:px-5 py-2.5 rounded-full text-[11px] uppercase tracking-[0.12em] font-medium focus:outline-none transition-all active:scale-95 duration-150 cursor-pointer ${
+            activePath.startsWith("/project")
+              ? "opacity-100 ring-1 ring-black/20"
+              : "opacity-85 hover:opacity-100"
+          }`}
+          data-cursor="OPEN"
+        >
+          PROJECT
+        </Link>
 
-          <Link
-            id="nav-portfolio-btn"
-            href="/portfolio"
-            prefetch={true}
-            onClick={() => triggerTransition("/portfolio")}
-            className={`glass-capsule px-4 md:px-5 py-2.5 rounded-full text-[11px] uppercase tracking-[0.12em] font-medium focus:outline-none transition-all active:scale-95 duration-150 cursor-pointer ${
-              pathname === "/portfolio"
-                ? "opacity-100 ring-1 ring-black/20"
-                : "opacity-85 hover:opacity-100"
-            }`}
-            data-cursor="OPEN"
-            data-magnetic
-          >
-            PORTFOLIO
-          </Link>
+        <Link
+          id="nav-portfolio-btn"
+          href="/portfolio"
+          onClick={(e) => {
+            e.preventDefault();
+            navigateTo("/portfolio");
+          }}
+          className={`glass-capsule px-4 md:px-5 py-2.5 rounded-full text-[11px] uppercase tracking-[0.12em] font-medium focus:outline-none transition-all active:scale-95 duration-150 cursor-pointer ${
+            activePath === "/portfolio"
+              ? "opacity-100 ring-1 ring-black/20"
+              : "opacity-85 hover:opacity-100"
+          }`}
+          data-cursor="OPEN"
+        >
+          PORTFOLIO
+        </Link>
 
-          <Link
-            id="nav-film-btn"
-            href="/film"
-            prefetch={true}
-            onClick={() => triggerTransition("/film")}
-            className={`glass-capsule px-4 md:px-5 py-2.5 rounded-full text-[11px] uppercase tracking-[0.12em] font-medium focus:outline-none transition-all active:scale-95 duration-150 cursor-pointer ${
-              pathname === "/film"
-                ? "opacity-100 ring-1 ring-black/20"
-                : "opacity-85 hover:opacity-100"
-            }`}
-            data-cursor="OPEN"
-            data-magnetic
-          >
-            FILM
-          </Link>
+        <Link
+          id="nav-film-btn"
+          href="/film"
+          onClick={(e) => {
+            e.preventDefault();
+            navigateTo("/film");
+          }}
+          className={`glass-capsule px-4 md:px-5 py-2.5 rounded-full text-[11px] uppercase tracking-[0.12em] font-medium focus:outline-none transition-all active:scale-95 duration-150 cursor-pointer ${
+            activePath === "/film"
+              ? "opacity-100 ring-1 ring-black/20"
+              : "opacity-85 hover:opacity-100"
+          }`}
+          data-cursor="OPEN"
+        >
+          FILM
+        </Link>
 
-          <Link
-            id="nav-krishna-btn"
-            href="/krishna"
-            prefetch={true}
-            onClick={() => triggerTransition("/krishna")}
-            className={`glass-capsule px-4 md:px-5 py-2.5 rounded-full text-[11px] uppercase tracking-[0.12em] font-medium focus:outline-none transition-all active:scale-95 duration-150 cursor-pointer ${
-              pathname === "/krishna"
-                ? "opacity-100 ring-1 ring-black/20"
-                : "opacity-85 hover:opacity-100"
-            }`}
-            data-cursor="OPEN"
-            data-magnetic
-          >
-            KRISHNA
-          </Link>
+        <Link
+          id="nav-krishna-btn"
+          href="/krishna"
+          onClick={(e) => {
+            e.preventDefault();
+            navigateTo("/krishna");
+          }}
+          className={`glass-capsule px-4 md:px-5 py-2.5 rounded-full text-[11px] uppercase tracking-[0.12em] font-medium focus:outline-none transition-all active:scale-95 duration-150 cursor-pointer ${
+            activePath === "/krishna"
+              ? "opacity-100 ring-1 ring-black/20"
+              : "opacity-85 hover:opacity-100"
+          }`}
+          data-cursor="OPEN"
+        >
+          KRISHNA
+        </Link>
 
-          <Link
-            id="nav-contact-reviews-btn"
-            href="/contact-reviews"
-            prefetch={true}
-            onClick={() => triggerTransition("/contact-reviews")}
-            className={`glass-capsule px-4 md:px-5 py-2.5 rounded-full text-[11px] uppercase tracking-[0.12em] font-medium focus:outline-none transition-all active:scale-95 duration-150 cursor-pointer ${
-              pathname.startsWith("/contact") || pathname === "/reviews"
-                ? "opacity-100 ring-1 ring-black/20"
-                : "opacity-85 hover:opacity-100"
-            }`}
-            data-cursor="OPEN"
-            data-magnetic
-          >
-            CONTACT & REVIEW
-          </Link>
+        <Link
+          id="nav-contact-reviews-btn"
+          href="/contact-reviews"
+          onClick={(e) => {
+            e.preventDefault();
+            navigateTo("/contact-reviews");
+          }}
+          className={`glass-capsule px-4 md:px-5 py-2.5 rounded-full text-[11px] uppercase tracking-[0.12em] font-medium focus:outline-none transition-all active:scale-95 duration-150 cursor-pointer ${
+            activePath.startsWith("/contact") || activePath === "/reviews"
+              ? "opacity-100 ring-1 ring-black/20"
+              : "opacity-85 hover:opacity-100"
+          }`}
+          data-cursor="OPEN"
+        >
+          CONTACT & REVIEW
+        </Link>
 
-          <Link
-            id="nav-admin-btn"
-            href="/admin"
-            prefetch={true}
-            onClick={() => triggerTransition("/admin")}
-            className="glass-capsule px-3.5 md:px-4 py-2.5 rounded-full text-[11px] uppercase tracking-[0.14em] font-mono font-medium focus:outline-none transition-all active:scale-95 duration-150 cursor-pointer opacity-75 hover:opacity-100 border border-black/10 hover:border-black/30"
-            data-cursor="ADMIN"
-            data-magnetic
-          >
-            ADMIN ⚙
-          </Link>
-        </nav>
-      )}
+        <Link
+          id="nav-admin-btn"
+          href="/admin"
+          onClick={() => navigateTo("/admin")}
+          className="glass-capsule px-3.5 md:px-4 py-2.5 rounded-full text-[11px] uppercase tracking-[0.14em] font-mono font-medium focus:outline-none transition-all active:scale-95 duration-150 cursor-pointer opacity-75 hover:opacity-100 border border-black/10 hover:border-black/30"
+          data-cursor="ADMIN"
+        >
+          ADMIN ⚙
+        </Link>
+      </nav>
     </header>
   );
 }

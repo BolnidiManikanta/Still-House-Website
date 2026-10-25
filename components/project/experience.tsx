@@ -35,25 +35,10 @@ export default function Experience({ slug = "blueyard" }: { slug?: string }) {
     if (!root) return
 
     let tickRaf = 0
-    let rafFunc: any = null
-    let localLenis: any = null
     let ctx: any = null
 
-    import("lenis").then(({ default: LenisClass }) => {
-      const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
-      motion.reduced = reduced
-
-      const lenis = new LenisClass({
-        duration: 1.15,
-        easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-        smoothWheel: true,
-      })
-      localLenis = lenis
-
-      lenis.on("scroll", () => ScrollTrigger.update())
-      rafFunc = (time: number) => lenis.raf(time * 1000)
-      gsap.ticker.add(rafFunc)
-      gsap.ticker.lagSmoothing(0)
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    motion.reduced = reduced
 
     // ---- reveals ------------------------------------------------------------
     ctx = gsap.context(() => {
@@ -143,20 +128,18 @@ export default function Experience({ slug = "blueyard" }: { slug?: string }) {
       })
     }, root)
 
-    // ---- master clock: feeds the render-free motion store -------------------
-    let tickRaf = 0
+    let lastScroll = 0
     const tick = () => {
       tickRaf = requestAnimationFrame(tick)
-      const nativeScroll = window.scrollY || document.documentElement.scrollTop || 0
-      const scroll = Math.max(lenis.scroll || 0, nativeScroll)
-      const limit =
-        (lenis as any).limit || document.documentElement.scrollHeight - window.innerHeight
+      const scroll = window.scrollY || document.documentElement.scrollTop || 0
+      const limit = document.documentElement.scrollHeight - window.innerHeight
       const progress = clamp(scroll / (limit || 1))
       motion.scroll = scroll
       motion.progress = progress
-      const v = clamp(Math.abs((lenis as any).velocity || 0) / 45)
-      motion.velocity = lerp(motion.velocity, v, 0.2)
-      if ((lenis as any).velocity) motion.scrollDir = Math.sign((lenis as any).velocity)
+      const velocity = Math.abs(scroll - lastScroll)
+      motion.velocity = lerp(motion.velocity, clamp(velocity / 45), 0.2)
+      if (velocity > 0) motion.scrollDir = Math.sign(scroll - lastScroll)
+      lastScroll = scroll
 
       // environment darkness ramps in the lower third of the page
       motion.darkness = smoothstep(0.58, 0.9, progress)
@@ -167,15 +150,11 @@ export default function Experience({ slug = "blueyard" }: { slug?: string }) {
     }
     tick()
 
-      setReady(true)
-    })
+    setReady(true)
 
     return () => {
       cancelAnimationFrame(tickRaf)
-      if (rafFunc) gsap.ticker.remove(rafFunc)
       if (ctx) ctx.revert()
-      ScrollTrigger.getAll().forEach((s) => s.kill())
-      if (localLenis) localLenis.destroy()
     }
   }, [])
 

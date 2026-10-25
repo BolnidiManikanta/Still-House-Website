@@ -47,10 +47,10 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
       headlineSecondary: 'ARCHITECTURAL MONOGRAPHS & ATMOSPHERIC LIGHT PHENOMENA',
       plate01Title: 'PLATE 01.0 — KYOTO MONOLITH',
       plate01Camera: 'HASSELBLAD 120MM',
-      plate01Image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=2600&q=98',
+      plate01Image: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=2600&q=82',
       plate02Title: 'Concrete Sanctuary Void',
       plate02Location: 'TOKYO, JAPAN — 2025',
-      plate02Image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=98',
+      plate02Image: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=82',
       ctaButtonText: 'CONTACT & REVIEW',
       ctaButtonLink: '/contact-reviews',
       scrollPrompt: 'SCROLL TO DISCOVER',
@@ -135,7 +135,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
       launchDate: 'OCTOBER 2026',
       teaserParagraph:
         'An uncompromising deep dive into maritime brutalism and salt-encrusted concrete bastions along the sub-Arctic coastline of northern Norway and Iceland.',
-      bannerImage: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=2600&q=98',
+      bannerImage: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=2600&q=82',
       ctaText: 'EXPLORE CASE STUDY',
       titleTypography: {
         fontFamily: 'serif',
@@ -168,7 +168,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
       'An architectural visual monograph exploring concrete permanence and atmospheric transience across Kyoto and Reykjavik.',
     volumeTag: 'STILL STUDIO © 2026',
     volumeTitle: 'VOLUME ONE',
-    heroImage: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=2600&q=98',
+    heroImage: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=2600&q=82',
     heroPlateTitle: 'KYOTO REYKJAVIK DUALITY',
     titleTypography: {
       fontFamily: 'serif',
@@ -195,7 +195,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
         id: 'work-plate-01',
         title: '01 / Isolation Reflections (Left)',
         section: 'Section 01 — Isolation Reflections',
-        src: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1600&q=98',
+        src: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1600&q=82',
         alt: 'Isolation Reflections Monograph Image 1',
         style: {
           scale: 1.0,
@@ -213,7 +213,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
         id: 'work-plate-02',
         title: '02 / Isolation Reflections (Center Offset)',
         section: 'Section 01 — Isolation Reflections',
-        src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=98',
+        src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=1600&q=82',
         alt: 'Isolation Reflections Monograph Image 2',
         style: {
           scale: 1.02,
@@ -231,7 +231,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
         id: 'work-plate-03',
         title: '03 / Isolation Reflections (Right Portrait)',
         section: 'Section 01 — Isolation Reflections',
-        src: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1600&q=98',
+        src: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1600&q=82',
         alt: 'Isolation Reflections Monograph Image 3',
         style: {
           scale: 1.0,
@@ -249,7 +249,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
         id: 'work-plate-04',
         title: '04 / Overview Asymmetric Left Plate',
         section: 'Section 02 — Overview',
-        src: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2000&q=98',
+        src: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2000&q=82',
         alt: 'Section 02 Overview Image Left',
         style: {
           scale: 1.0,
@@ -267,7 +267,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
         id: 'work-plate-05',
         title: '05 / Spatial Study Reverse Plate',
         section: 'Section 03 — Spatial Study',
-        src: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=2000&q=98',
+        src: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=2000&q=82',
         alt: 'Section 03 Spatial Study Image Right',
         style: {
           scale: 1.04,
@@ -285,7 +285,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
         id: 'work-plate-06',
         title: '06 / Poolsides Primary Plate',
         section: 'Section 04 — Poolsides',
-        src: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=2000&q=98',
+        src: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=2000&q=82',
         alt: 'Poolsides Monograph Image 1',
         style: {
           scale: 1.0,
@@ -303,7 +303,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
         id: 'work-plate-07',
         title: '07 / Poolsides Staggered Offset Plate',
         section: 'Section 04 — Poolsides',
-        src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=98',
+        src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=82',
         alt: 'Poolsides Monograph Image 2',
         style: {
           scale: 1.03,
@@ -321,7 +321,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
         id: 'work-plate-08',
         title: '08 / Architectural Archive Triptych (Left)',
         section: 'Section 05 — Architectural Archive',
-        src: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1600&q=98',
+        src: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=1600&q=82',
         alt: 'Section 05 Archive Image 1',
         style: {
           scale: 1.0,
@@ -339,7 +339,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
         id: 'work-plate-09',
         title: '09 / Architectural Archive Triptych (Center)',
         section: 'Section 05 — Architectural Archive',
-        src: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=98',
+        src: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1600&q=82',
         alt: 'Section 05 Archive Image 2',
         style: {
           scale: 1.0,
@@ -357,7 +357,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
         id: 'work-plate-10',
         title: '10 / Architectural Archive Triptych (Right)',
         section: 'Section 05 — Architectural Archive',
-        src: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1600&q=98',
+        src: 'https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1600&q=82',
         alt: 'Section 05 Archive Image 3',
         style: {
           scale: 1.02,
@@ -375,7 +375,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
         id: 'work-plate-11',
         title: '11 / Centered Exhibition Feature (65vw)',
         section: 'Section 06 — Centered Exhibition Feature',
-        src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2600&q=98',
+        src: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2600&q=82',
         alt: 'Section 06 Centered Feature Image',
         style: {
           scale: 1.0,
@@ -393,7 +393,7 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
         id: 'work-plate-12',
         title: '12 / Standalone Final Monograph Plate (70vw)',
         section: 'Section 07 — Standalone Final Monograph',
-        src: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=2600&q=98',
+        src: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=2600&q=82',
         alt: 'Section 07 Standalone Final Monograph Image',
         style: {
           scale: 1.0,
@@ -417,8 +417,8 @@ export const DEFAULT_SITE_CONFIG: SiteConfig = {
     statementLine2: 'HOLDS THE SILENCE.',
     narrativeBody:
       'A spatial inquiry into the quiet permanence of brutalist concrete forms, capturing how daylight carves depth into geometric voids.',
-    primaryImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=98',
-    secondaryImage: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=2600&q=98',
+    primaryImage: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=82',
+    secondaryImage: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=2600&q=82',
     titleTypography: {
       fontFamily: 'serif',
       fontWeight: '300',
@@ -750,17 +750,17 @@ export const PRESET_IMAGE_GALLERY = [
   {
     label: 'Kyoto Temple Dawn',
     category: 'Architecture',
-    url: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=2600&q=98',
+    url: 'https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=2600&q=82',
   },
   {
     label: 'Tokyo Concrete Sanctuary',
     category: 'Architecture',
-    url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=98',
+    url: 'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?auto=format&fit=crop&w=2000&q=82',
   },
   {
     label: 'Nordic Coastline Bastion',
     category: 'Landscape',
-    url: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=2600&q=98',
+    url: 'https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=2600&q=82',
   },
   {
     label: 'Warm Analog Studio Light',

@@ -5,6 +5,7 @@ import Image from "next/image";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { usePageTransition } from "@/components/PageTransition";
+import { useNavigation } from "@/components/InstantViewRouter";
 
 interface ArchitecturalImagePlateProps {
   src: string;
@@ -42,6 +43,7 @@ export default function ArchitecturalImagePlate({
   dataAdminPage = "work",
 }: ArchitecturalImagePlateProps) {
   const { triggerTransition } = usePageTransition();
+  const { navigateTo } = useNavigation();
   const containerRef = useRef<HTMLDivElement>(null);
   const cameraWrapRef = useRef<HTMLDivElement>(null);
   const imgRef = useRef<HTMLDivElement>(null);
@@ -52,7 +54,7 @@ export default function ArchitecturalImagePlate({
     if (onClick) {
       onClick();
     } else {
-      triggerTransition("/project/blueyard");
+      navigateTo("/project/blueyard");
     }
   };
 
@@ -135,9 +137,9 @@ export default function ArchitecturalImagePlate({
         });
 
       // =========================================================================
-      // STEP 3 — CONTINUOUS BLUR & OPACITY FOCUS THROUGH SCROLL PROGRESS
-      // ENTER: blur(6px), opacity 0.75
-      // CENTER: blur(0px), opacity 1.0
+      // STEP 3 — CONTINUOUS OPACITY & EXPOSURE FOCUS THROUGH SCROLL PROGRESS
+      // ENTER: opacity 0.8
+      // CENTER: opacity 1.0 (GPU accelerated, zero re-rasterization lag)
       // =========================================================================
       const focusTl = gsap.timeline({
         scrollTrigger: {
@@ -151,12 +153,10 @@ export default function ArchitecturalImagePlate({
       focusTl.fromTo(
         imgWrapper,
         {
-          opacity: 0.75,
-          filter: "blur(6px) contrast(1.15) saturate(1.08)",
+          opacity: 0.8,
         },
         {
           opacity: 1.0,
-          filter: "blur(0px) contrast(1.15) saturate(1.08)",
           ease: "none",
         }
       );
@@ -229,34 +229,47 @@ export default function ArchitecturalImagePlate({
         const yTo = gsap.quickTo(imgWrapper, "y", { duration: 0.5, ease: "power2.out" });
         const scaleTo = gsap.quickTo(imgWrapper, "scale", { duration: 0.5, ease: "power2.out" });
 
-        const onMouseMove = (e: MouseEvent) => {
-          const rect = container.getBoundingClientRect();
-          const normX = (e.clientX - rect.left) / rect.width - 0.5;
-          const normY = (e.clientY - rect.top) / rect.height - 0.5;
+        let plateMoveRaf: number | null = null;
+        let cachedRect: DOMRect | null = null;
 
-          xTo(normX * 24); // -12px to +12px
-          yTo(normY * 16); // -8px to +8px
-          scaleTo(1.025);
+        const onMouseEnter = () => {
+          cachedRect = container.getBoundingClientRect();
+        };
+
+        const onMouseMove = (e: MouseEvent) => {
+          if (plateMoveRaf) return;
+          plateMoveRaf = requestAnimationFrame(() => {
+            plateMoveRaf = null;
+            const rect = cachedRect || container.getBoundingClientRect();
+            const normX = (e.clientX - rect.left) / rect.width - 0.5;
+            const normY = (e.clientY - rect.top) / rect.height - 0.5;
+
+            xTo(normX * 24); // -12px to +12px
+            yTo(normY * 16); // -8px to +8px
+            scaleTo(1.025);
+          });
         };
 
         const onMouseLeave = () => {
+          if (plateMoveRaf) cancelAnimationFrame(plateMoveRaf);
+          cachedRect = null;
           xTo(0);
           yTo(0);
           scaleTo(1.0);
         };
 
-        container.addEventListener("mousemove", onMouseMove);
-        container.addEventListener("mouseleave", onMouseLeave);
+        container.addEventListener("mouseenter", onMouseEnter, { passive: true });
+        container.addEventListener("mousemove", onMouseMove, { passive: true });
+        container.addEventListener("mouseleave", onMouseLeave, { passive: true });
 
         return () => {
+          if (plateMoveRaf) cancelAnimationFrame(plateMoveRaf);
+          container.removeEventListener("mouseenter", onMouseEnter);
           container.removeEventListener("mousemove", onMouseMove);
           container.removeEventListener("mouseleave", onMouseLeave);
         };
       }
     }, container);
-
-    // Ensure ScrollTrigger evaluates geometry accurately
-    ScrollTrigger.refresh();
 
     return () => {
       ctx.revert();

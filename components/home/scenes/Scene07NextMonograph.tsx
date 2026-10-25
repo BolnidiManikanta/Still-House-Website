@@ -2,9 +2,11 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { usePageTransition } from "@/components/PageTransition";
+import { useNavigation } from "@/components/InstantViewRouter";
 import { useSiteConfig } from "@/lib/admin/siteConfigStore";
 
 export default function Scene07NextMonograph() {
@@ -17,6 +19,7 @@ export default function Scene07NextMonograph() {
   const navButtonsRef = useRef<HTMLDivElement>(null);
   const progressPillRef = useRef<HTMLDivElement>(null);
   const { triggerTransition } = usePageTransition();
+  const { navigateTo } = useNavigation();
 
   const { config } = useSiteConfig();
   const nextData = config.home.nextMonograph;
@@ -184,11 +187,15 @@ export default function Scene07NextMonograph() {
             NEXT EXHIBITION PROJECT
           </span>
 
-          <button
-            onClick={() => triggerTransition("/project/blueyard")}
+          <Link
+            href="/project/blueyard"
+            prefetch={true}
+            onClick={(e) => {
+              e.preventDefault();
+              navigateTo("/project/blueyard");
+            }}
             data-cursor="OPEN"
-            data-magnetic
-            className="group cursor-pointer focus:outline-none"
+            className="group cursor-pointer focus:outline-none block"
           >
             <h2
               ref={titleRef}
@@ -196,7 +203,7 @@ export default function Scene07NextMonograph() {
             >
               {nextData.title}
             </h2>
-          </button>
+          </Link>
 
           <p
             ref={teaserContentRef}
@@ -210,22 +217,30 @@ export default function Scene07NextMonograph() {
             ref={navButtonsRef}
             className="mt-10 flex flex-wrap justify-center gap-4 will-change-transform opacity-0 pointer-events-none"
           >
-            <button
-              onClick={() => triggerTransition("/work")}
-              className="glass-capsule px-7 py-3 rounded-full text-[11px] uppercase tracking-[0.16em] font-medium text-[#110F0E] cursor-pointer hover:bg-black/10 transition-colors"
+            <Link
+              href="/work"
+              prefetch={true}
+              onClick={(e) => {
+                e.preventDefault();
+                navigateTo("/work");
+              }}
+              className="glass-capsule px-7 py-3 rounded-full text-[11px] uppercase tracking-[0.16em] font-medium text-[#110F0E] cursor-pointer hover:bg-black/10 transition-colors inline-block"
               data-cursor="OPEN"
-              data-magnetic
             >
               BROWSE ALL ARCHIVES
-            </button>
-            <button
-              onClick={() => triggerTransition("/project/blueyard")}
-              className="bg-[#110F0E] text-[#F5F3EE] px-7 py-3 rounded-full text-[11px] uppercase tracking-[0.16em] font-medium cursor-pointer hover:bg-black transition-colors shadow-lg"
+            </Link>
+            <Link
+              href="/project/blueyard"
+              prefetch={true}
+              onClick={(e) => {
+                e.preventDefault();
+                navigateTo("/project/blueyard");
+              }}
+              className="bg-[#110F0E] text-[#F5F3EE] px-7 py-3 rounded-full text-[11px] uppercase tracking-[0.16em] font-medium cursor-pointer hover:bg-black transition-colors shadow-lg inline-block"
               data-cursor="OPEN"
-              data-magnetic
             >
               {nextData.ctaText || "EXPLORE CASE STUDY →"}
-            </button>
+            </Link>
           </div>
         </div>
 

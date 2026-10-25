@@ -8,6 +8,7 @@ import PageTransition from "@/components/PageTransition";
 import { SiteConfigProvider } from "@/lib/admin/siteConfigStore";
 import AdminFloatingBar from "@/components/admin/AdminFloatingBar";
 import PublishedVisualOverrides from "@/components/admin/PublishedVisualOverrides";
+import InstantViewRouter from "@/components/InstantViewRouter";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -15,6 +16,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://still-studio.netlify.app"),
   title: "Dreamscapes — Still Studio",
   description:
     "Fine art photography monograph and visual portfolio featuring Unseen Studio Dreamscapes aesthetic with Lenis smooth scrolling, GSAP choreography, and Three.js atmospheric effects.",
@@ -97,12 +99,9 @@ export default function RootLayout({
           <FilmGrainLayer />
           <MotionProvider>
             <PageTransition>
-              <AtmosphereOverlay />
-              <Navbar />
-              <main className="relative w-full overflow-x-clip">
+              <InstantViewRouter>
                 {children}
-              </main>
-              <AdminFloatingBar />
+              </InstantViewRouter>
             </PageTransition>
           </MotionProvider>
         </SiteConfigProvider>

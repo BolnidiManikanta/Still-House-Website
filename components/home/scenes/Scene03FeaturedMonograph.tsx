@@ -29,7 +29,7 @@ const monographs: MonographItem[] = [
     description:
       "Tectonic shadows cast by concrete monoliths under raking low-temperature dawn light. An isolation of silent brutalist mass.",
     image:
-      "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=2600&q=98",
+      "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=1800&q=82",
     link: "/work",
   },
   {
@@ -42,7 +42,7 @@ const monographs: MonographItem[] = [
     description:
       "Atmospheric horizon and geothermal mist across sub-zero highland plateaus at 05:40 AM. Gradation between earth and ether.",
     image:
-      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2600&q=98",
+      "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1800&q=82",
     link: "/work",
   },
   {
@@ -55,7 +55,7 @@ const monographs: MonographItem[] = [
     description:
       "Sculptural textile studies translating silk volumes into monumental architectural forms. Shadows etched into silver salts.",
     image:
-      "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=2600&q=98",
+      "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?auto=format&fit=crop&w=1800&q=82",
     link: "/portfolio",
   },
 ];

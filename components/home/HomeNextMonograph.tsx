@@ -2,15 +2,16 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { usePageTransition } from "../PageTransition";
+import { useNavigation } from "@/components/InstantViewRouter";
 
 export default function HomeNextMonograph() {
   const sectionRef = useRef<HTMLElement>(null);
   const cardFrameRef = useRef<HTMLDivElement>(null);
   const titleRef = useRef<HTMLHeadingElement>(null);
-  const { triggerTransition } = usePageTransition();
+  const { navigateTo } = useNavigation();
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -112,11 +113,15 @@ export default function HomeNextMonograph() {
             NEXT EXHIBITION PROJECT
           </span>
 
-          <button
-            onClick={() => triggerTransition("/project/blueyard")}
+          <Link
+            href="/project/blueyard"
+            onClick={(e) => {
+              e.preventDefault();
+              navigateTo("/project/blueyard");
+            }}
             data-cursor="OPEN"
             data-magnetic
-            className="group cursor-pointer focus:outline-none"
+            className="group cursor-pointer focus:outline-none inline-block"
           >
             <h2
               ref={titleRef}
@@ -124,7 +129,7 @@ export default function HomeNextMonograph() {
             >
               BLUEYARD
             </h2>
-          </button>
+          </Link>
 
           <p className="mt-8 font-sans font-light text-[15px] md:text-[18px] text-[#110F0E]/80 max-w-[500px]">
             Spatial monography exploring concrete geometries, isolated lightwells, and quiet architectural landscapes.
@@ -132,20 +137,28 @@ export default function HomeNextMonograph() {
 
           {/* Quick Route Links */}
           <div className="mt-12 flex flex-wrap justify-center gap-3">
-            <button
-              onClick={() => triggerTransition("/work")}
-              className="glass-capsule px-6 py-3 rounded-full text-[11px] uppercase tracking-[0.16em] font-medium text-[#110F0E] cursor-pointer hover:bg-black/10 transition-colors"
+            <Link
+              href="/work"
+              onClick={(e) => {
+                e.preventDefault();
+                navigateTo("/work");
+              }}
+              className="glass-capsule px-6 py-3 rounded-full text-[11px] uppercase tracking-[0.16em] font-medium text-[#110F0E] cursor-pointer hover:bg-black/10 transition-colors inline-block"
               data-cursor="OPEN"
             >
               BROWSE ALL ARCHIVES
-            </button>
-            <button
-              onClick={() => triggerTransition("/project/blueyard")}
-              className="bg-[#110F0E] text-[#F5F3EE] px-6 py-3 rounded-full text-[11px] uppercase tracking-[0.16em] font-medium cursor-pointer hover:bg-black transition-colors"
+            </Link>
+            <Link
+              href="/project/blueyard"
+              onClick={(e) => {
+                e.preventDefault();
+                navigateTo("/project/blueyard");
+              }}
+              className="bg-[#110F0E] text-[#F5F3EE] px-6 py-3 rounded-full text-[11px] uppercase tracking-[0.16em] font-medium cursor-pointer hover:bg-black transition-colors inline-block"
               data-cursor="OPEN"
             >
               EXPLORE BLUEYARD →
-            </button>
+            </Link>
           </div>
         </div>
 

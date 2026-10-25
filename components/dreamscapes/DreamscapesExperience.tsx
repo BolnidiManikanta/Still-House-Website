@@ -2,11 +2,13 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Footer from "@/components/Footer";
 import Hero from "@/components/Hero";
 import { usePageTransition } from "@/components/PageTransition";
+import { useNavigation } from "@/components/InstantViewRouter";
 import AmbientAudio from "@/components/AmbientAudio";
 import ArchitecturalImagePlate from "./ArchitecturalImagePlate";
 import EditorialTitle from "./EditorialTitle";
@@ -16,6 +18,7 @@ import { DEFAULT_SITE_CONFIG } from "@/lib/admin/defaultConfig";
 
 export default function DreamscapesExperience() {
   const { triggerTransition } = usePageTransition();
+  const { navigateTo } = useNavigation();
   const { config } = useSiteConfig();
   const containerRef = useRef<HTMLElement>(null);
   const progressBarRef = useRef<HTMLDivElement>(null);
@@ -530,11 +533,14 @@ export default function DreamscapesExperience() {
               NEXT MONOGRAPH
             </span>
 
-            <button
-              onClick={() => triggerTransition("/project/blueyard")}
-              data-magnetic
+            <Link
+              href="/project/blueyard"
+              onClick={(e) => {
+                e.preventDefault();
+                navigateTo("/project/blueyard");
+              }}
               data-cursor="VIEW PROJECT ↗"
-              className="group focus:outline-none cursor-pointer"
+              className="group focus:outline-none cursor-pointer inline-block"
             >
               <h2
                 ref={nextProjectTitleRef}
@@ -542,7 +548,7 @@ export default function DreamscapesExperience() {
               >
                 BLUEYARD
               </h2>
-            </button>
+            </Link>
 
             <span
               ref={blueyardHintRef}
@@ -561,7 +567,7 @@ export default function DreamscapesExperience() {
               className="w-full h-[120%] -top-[10%] relative will-change-transform"
             >
               <Image
-                src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=2600&q=98"
+                src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1920&q=82"
                 alt="Next Project Teaser Background Image"
                 fill
                 className="object-cover object-center filter contrast-[1.15] saturate-[1.08]"

@@ -37,9 +37,10 @@ export default function CustomCursor() {
     let circleY = mouseY;
     let rafId: number;
 
-    const onMouseMove = (e: MouseEvent) => {
-      if (isTransitioning) return;
+    let cachedTarget: HTMLElement | null = null;
+    let cachedRect: DOMRect | null = null;
 
+    const onMouseMove = (e: MouseEvent) => {
       mouseX = e.clientX;
       mouseY = e.clientY;
 
@@ -50,40 +51,56 @@ export default function CustomCursor() {
         });
       }
 
-      // Magnetic Attraction on elements with [data-magnetic]
+      // Subtle Magnetic Attraction on elements with [data-magnetic]
       const magneticTarget = (e.target as HTMLElement).closest("[data-magnetic]") as HTMLElement | null;
       if (magneticTarget) {
+        if (cachedTarget !== magneticTarget) {
+          cachedTarget = magneticTarget;
+          cachedRect = magneticTarget.getBoundingClientRect();
+        }
         activeMagneticRef.current = magneticTarget;
-        const rect = magneticTarget.getBoundingClientRect();
+        const rect = cachedRect || magneticTarget.getBoundingClientRect();
         const centerX = rect.left + rect.width / 2;
         const centerY = rect.top + rect.height / 2;
-        const deltaX = (e.clientX - centerX) * 0.25;
-        const deltaY = (e.clientY - centerY) * 0.25;
+        const deltaX = (e.clientX - centerX) * 0.05;
+        const deltaY = (e.clientY - centerY) * 0.05;
 
         gsap.to(magneticTarget, {
           x: deltaX,
           y: deltaY,
-          duration: 0.3,
+          duration: 0.2,
           ease: "power2.out",
+          overwrite: "auto",
         });
       } else if (activeMagneticRef.current) {
-        gsap.to(activeMagneticRef.current, { x: 0, y: 0, duration: 0.3, ease: "power2.out" });
+        gsap.to(activeMagneticRef.current, { x: 0, y: 0, duration: 0.2, ease: "power2.out", overwrite: "auto" });
         activeMagneticRef.current = null;
+        cachedTarget = null;
+        cachedRect = null;
+      }
+    };
+
+    // Ensure buttons NEVER shift away during click/mousedown so 100% of clicks register instantly
+    const onMouseDown = () => {
+      if (activeMagneticRef.current) {
+        gsap.set(activeMagneticRef.current, { x: 0, y: 0 });
       }
     };
 
     window.addEventListener("mousemove", onMouseMove, { passive: true });
+    window.addEventListener("mousedown", onMouseDown, { passive: true });
 
     const render = () => {
-      if (!isTransitioning) {
-        circleX += (mouseX - circleX) * 0.13;
-        circleY += (mouseY - circleY) * 0.13;
+      const dx = mouseX - circleX;
+      const dy = mouseY - circleY;
+
+      // Only update DOM when cursor has moved
+      if (Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1) {
+        circleX += dx * 0.18;
+        circleY += dy * 0.18;
 
         if (cursorRingRef.current) {
-          gsap.set(cursorRingRef.current, {
-            x: circleX,
-            y: circleY,
-          });
+          cursorRingRef.current.style.transform = `translate3d(${circleX.toFixed(1)}px, ${circleY.toFixed(1)}px, 0) translate(-50%, -50%)`;
         }
       }
 
@@ -127,11 +144,12 @@ export default function CustomCursor() {
       document.body.classList.remove("custom-cursor-active");
       cancelAnimationFrame(rafId);
       window.removeEventListener("mousemove", onMouseMove);
+      window.removeEventListener("mousedown", onMouseDown);
       window.removeEventListener("mouseover", handleMouseOver);
       window.removeEventListener("mouseout", handleMouseOut);
       document.body.style.cursor = "auto";
     };
-  }, [isTransitioning]);
+  }, []);
 
   if (disabled) {
     return null;

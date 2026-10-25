@@ -5,7 +5,7 @@
  * Inspired by 25 Residences / Unseen Studio luxury editorial exhibition design.
  */
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { AtmosphericBackground } from './components/AtmosphericBackground';
 import { CentralExhibitionShowcase } from './components/CentralExhibitionShowcase';
 import { CategoryStoryView } from './components/CategoryStoryView';
@@ -60,28 +60,28 @@ export default function KrishnaExperience() {
   }, []);
 
   // Select category and enter the photographic story
-  const handleSelectCategory = (categoryKey: string) => {
+  const handleSelectCategory = useCallback((categoryKey: string) => {
     setSelectedCategoryKey(categoryKey);
     setCurrentView('story');
     window.history.pushState(null, '', `#${categoryKey}`);
-  };
+  }, []);
 
   // Return from category story back to the 3D sculpture
-  const handleBackToSculpture = () => {
+  const handleBackToSculpture = useCallback(() => {
     setCurrentView('installation');
     window.history.pushState(null, '', '#');
-  };
+  }, []);
 
   // Open Lightbox
-  const handleOpenLightbox = (image: PortfolioImage) => {
+  const handleOpenLightbox = useCallback((image: PortfolioImage) => {
     const pool = PORTFOLIO_IMAGES;
     const index = pool.findIndex((item) => item.id === image.id);
     setActiveImageIndex(index !== -1 ? index : 0);
     setLightboxOpen(true);
-  };
+  }, []);
 
   // Open Inquiry modal
-  const handleOpenInquiry = (categoryName?: string) => {
+  const handleOpenInquiry = useCallback((categoryName?: string) => {
     if (categoryName) {
       setInquiryCategory(categoryName);
     } else {
@@ -89,7 +89,7 @@ export default function KrishnaExperience() {
       setInquiryCategory(activeCat ? activeCat.label : 'WEDDING');
     }
     setInquiryOpen(true);
-  };
+  }, [selectedCategoryKey]);
 
   // Active category index (0-7)
   const currentCategoryIndex = useMemo(() => {

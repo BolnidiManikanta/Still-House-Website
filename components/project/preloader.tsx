@@ -14,25 +14,11 @@ export default function Preloader({
   const rootRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    // Ultra-fast responsive loader to meet the user's requirement of millisecond loading
-    let current = 0;
-    const interval = window.setInterval(() => {
-      current += 25;
-      if (current >= 100) {
-        current = 100;
-        window.clearInterval(interval);
-        setCount(100);
-        setHidden(true);
-        onDone();
-      } else {
-        setCount(current);
-      }
-    }, 40);
-
-    return () => window.clearInterval(interval);
+    onDone();
+    setHidden(true);
   }, [onDone]);
 
-  if (hidden) return null;
+  return null;
 
   return (
     <div

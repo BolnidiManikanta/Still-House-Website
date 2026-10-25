@@ -45,39 +45,39 @@ export default function FilmGrainLayer() {
     };
     window.addEventListener("resize", handleResize, { passive: true });
 
-    let frameCount = 0;
+    let lastTime = 0;
     let offsetX = 0;
     let offsetY = 0;
 
-    const render = () => {
+    const render = (now: number) => {
       if (document.hidden) {
         animId = requestAnimationFrame(render);
         return;
       }
 
-      frameCount++;
-      // Shift grain offset at 12fps for organic film look without CPU overload
-      if (frameCount % 5 === 0) {
+      // Shift grain offset at authentic 12fps film rate (80ms), skipping 80% of redraws
+      if (now - lastTime >= 80) {
+        lastTime = now;
         offsetX = Math.floor(Math.random() * 128);
         offsetY = Math.floor(Math.random() * 128);
-      }
 
-      ctx.clearRect(0, 0, width, height);
+        ctx.clearRect(0, 0, width, height);
 
-      // Draw tiled noise pattern
-      const pattern = ctx.createPattern(patternCanvas, "repeat");
-      if (pattern) {
-        ctx.save();
-        ctx.translate(offsetX, offsetY);
-        ctx.fillStyle = pattern;
-        ctx.fillRect(-offsetX, -offsetY, width + 128, height + 128);
-        ctx.restore();
+        // Draw tiled noise pattern
+        const pattern = ctx.createPattern(patternCanvas, "repeat");
+        if (pattern) {
+          ctx.save();
+          ctx.translate(offsetX, offsetY);
+          ctx.fillStyle = pattern;
+          ctx.fillRect(-offsetX, -offsetY, width + 128, height + 128);
+          ctx.restore();
+        }
       }
 
       animId = requestAnimationFrame(render);
     };
 
-    render();
+    animId = requestAnimationFrame(render);
 
     return () => {
       window.removeEventListener("resize", handleResize);

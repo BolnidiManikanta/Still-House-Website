@@ -3,6 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { ArrowUpRight, ArrowLeft } from 'lucide-react';
+import { useNavigation } from '@/components/InstantViewRouter';
 
 interface NavbarProps {
   onOpenRatingModal: () => void;
@@ -17,6 +18,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   reviewCount,
   averageRating,
 }) => {
+  const { navigateTo } = useNavigation();
   const scrollTo = (id: string) => {
     const el = document.getElementById(id);
     if (el) {
@@ -31,7 +33,11 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="flex items-center gap-4">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-[11px] font-mono tracking-[0.2em] uppercase text-[#111111]/70 hover:text-[#111111] px-3 py-1.5 rounded-full border border-[#D7D7D2] hover:border-[#111111] transition-all bg-white"
+            onClick={(e) => {
+              e.preventDefault();
+              navigateTo('/');
+            }}
+            className="inline-flex items-center gap-1.5 text-[11px] font-mono tracking-[0.2em] uppercase text-[#111111]/70 hover:text-[#111111] px-3 py-1.5 rounded-full border border-[#D7D7D2] hover:border-[#111111] transition-all bg-white cursor-pointer"
           >
             <ArrowLeft className="w-3 h-3" />
             <span>STILL STUDIO</span>

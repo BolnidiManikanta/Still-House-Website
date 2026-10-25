@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { CATEGORIES } from '../data/portfolioData';
 import { X, ArrowUpRight } from 'lucide-react';
+import { useNavigation } from '@/components/InstantViewRouter';
 
 interface NavigationDrawerProps {
   isOpen: boolean;
@@ -18,6 +19,7 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
   onSelectCategory,
   onOpenInquiry,
 }) => {
+  const { navigateTo } = useNavigation();
   if (!isOpen) return null;
 
   return (
@@ -41,6 +43,11 @@ export const NavigationDrawer: React.FC<NavigationDrawerProps> = ({
             href="/"
             prefetch={true}
             id="drawer-home-btn"
+            onClick={(e) => {
+              e.preventDefault();
+              onClose();
+              navigateTo('/');
+            }}
             className="flex items-center gap-2 px-4 py-2 rounded-full border border-stone-600/70 hover:border-white hover:bg-white hover:text-stone-950 text-[11px] font-sans tracking-[0.14em] text-stone-200 uppercase transition-all duration-200 cursor-pointer shadow-xs"
           >
             <span>←</span>

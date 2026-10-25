@@ -2,9 +2,11 @@
 
 import { useEffect, useRef } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { usePageTransition } from "../PageTransition";
+import { useNavigation } from "@/components/InstantViewRouter";
 
 export default function HomeEditorialTypography() {
   const containerRef = useRef<HTMLElement>(null);
@@ -14,6 +16,7 @@ export default function HomeEditorialTypography() {
   const imageCardRef = useRef<HTMLDivElement>(null);
   const quoteRef = useRef<HTMLDivElement>(null);
   const { triggerTransition } = usePageTransition();
+  const { navigateTo } = useNavigation();
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -143,10 +146,15 @@ export default function HomeEditorialTypography() {
           </h2>
 
           {/* Center Emerging Monograph Plate */}
-          <div
-            ref={imageCardRef}
-            onClick={() => triggerTransition("/work")}
-            className="relative my-4 md:-my-8 z-20 w-[260px] sm:w-[320px] md:w-[420px] aspect-[3/4] bg-[#dedad2] overflow-hidden shadow-2xl border border-black/15 cursor-pointer will-change-transform group"
+          <Link
+            href="/work"
+            prefetch={true}
+            ref={imageCardRef as any}
+            onClick={(e) => {
+              e.preventDefault();
+              navigateTo("/work");
+            }}
+            className="relative my-4 md:-my-8 z-20 w-[260px] sm:w-[320px] md:w-[420px] aspect-[3/4] bg-[#dedad2] overflow-hidden shadow-2xl border border-black/15 cursor-pointer will-change-transform group block"
             data-cursor="VIEW"
           >
             <Image
@@ -161,7 +169,7 @@ export default function HomeEditorialTypography() {
               <span>SILENT PROFILE</span>
               <span>ZURICH · 2025</span>
             </div>
-          </div>
+          </Link>
 
           {/* Opposing Scrubbed Display Line 2 */}
           <h2

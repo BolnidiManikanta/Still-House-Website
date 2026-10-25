@@ -285,6 +285,11 @@ html.lenis, html.lenis body {
   --darkness: 0;
   --line: rgba(8,8,8,.18);
   --serif: Georgia, 'Times New Roman', serif;
+  position: relative;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #e8e8e5;
+  color: #080808;
   background: color-mix(in srgb, #e8e8e5 calc(100% - (var(--darkness) * 100%)), #080808 calc(var(--darkness) * 100%));
   color: color-mix(in srgb, #080808 calc(100% - (var(--darkness) * 100%)), #e8e8e5 calc(var(--darkness) * 100%));
   font-family: Arial, Helvetica, sans-serif;

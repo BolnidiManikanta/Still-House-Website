@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
 import {
   ArrowLeft,
   ArrowRight,
@@ -20,7 +20,7 @@ interface ReviewsSliderProps {
   onVoteHelpful: (reviewId: string) => void;
 }
 
-export const ReviewsSlider: React.FC<ReviewsSliderProps> = ({
+export const ReviewsSlider: React.FC<ReviewsSliderProps> = React.memo(({
   reviews,
   onOpenRatingModal,
   onVoteHelpful,
@@ -58,19 +58,19 @@ export const ReviewsSlider: React.FC<ReviewsSliderProps> = ({
     (reviews && reviews.length > 0 ? reviews[currentIndex] || reviews[0] : null) ||
     fallbackReview;
 
-  const handleNext = () => {
+  const handleNext = useCallback(() => {
     if (totalReviews <= 1) return;
     setDirection(1);
     setCurrentIndex((prev) => (prev + 1) % totalReviews);
-  };
+  }, [totalReviews]);
 
-  const handlePrev = () => {
+  const handlePrev = useCallback(() => {
     if (totalReviews <= 1) return;
     setDirection(-1);
     setCurrentIndex((prev) => (prev - 1 + totalReviews) % totalReviews);
-  };
+  }, [totalReviews]);
 
-  // Keyboard navigation (Requirement #14)
+  // Keyboard navigation
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       const el = document.getElementById('reviews-section');
@@ -88,14 +88,14 @@ export const ReviewsSlider: React.FC<ReviewsSliderProps> = ({
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [totalReviews]);
+  }, [handleNext, handlePrev]);
 
   // Touch handlers for mobile swipe
-  const handleTouchStart = (e: React.TouchEvent) => {
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
     touchStartXRef.current = e.touches[0].clientX;
-  };
+  }, []);
 
-  const handleTouchEnd = (e: React.TouchEvent) => {
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
     if (touchStartXRef.current === null) return;
     const touchEndX = e.changedTouches[0].clientX;
     const diff = touchEndX - touchStartXRef.current;
@@ -107,15 +107,15 @@ export const ReviewsSlider: React.FC<ReviewsSliderProps> = ({
       }
     }
     touchStartXRef.current = null;
-  };
+  }, [handleNext, handlePrev]);
 
   // Mouse drag handlers for desktop
-  const handleMouseDown = (e: React.MouseEvent) => {
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
     mouseStartXRef.current = e.clientX;
     isDraggingRef.current = true;
-  };
+  }, []);
 
-  const handleMouseUp = (e: React.MouseEvent) => {
+  const handleMouseUp = useCallback((e: React.MouseEvent) => {
     if (!isDraggingRef.current || mouseStartXRef.current === null) return;
     const diff = e.clientX - mouseStartXRef.current;
     if (Math.abs(diff) > 50) {
@@ -127,20 +127,21 @@ export const ReviewsSlider: React.FC<ReviewsSliderProps> = ({
     }
     isDraggingRef.current = false;
     mouseStartXRef.current = null;
-  };
+  }, [handleNext, handlePrev]);
 
-  const handleVote = (id: string, e: React.MouseEvent) => {
+  const handleVote = useCallback((id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (!votedIds.has(id)) {
       setVotedIds((prev) => new Set(prev).add(id));
       onVoteHelpful(id);
     }
-  };
+  }, [votedIds, onVoteHelpful]);
 
-  const averageRating =
-    reviews.length > 0
+  const averageRating = useMemo(() => {
+    return reviews.length > 0
       ? reviews.reduce((acc, r) => acc + r.overallRating, 0) / reviews.length
       : 5.0;
+  }, [reviews]);
 
   // Curated architectural & sculptural grayscale thumbnails for the right side
   const reviewImages = [
@@ -589,4 +590,6 @@ export const ReviewsSlider: React.FC<ReviewsSliderProps> = ({
       `}</style>
     </section>
   );
-};
+});
+
+ReviewsSlider.displayName = "ReviewsSlider";

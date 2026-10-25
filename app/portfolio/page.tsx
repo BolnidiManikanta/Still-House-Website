@@ -7,9 +7,5 @@ export const metadata: Metadata = {
 };
 
 export default function PortfolioPage() {
-  return (
-    <main className="portfolio-page relative min-h-screen">
-      <PortfolioExperience />
-    </main>
-  );
+  return <PortfolioExperience />;
 }

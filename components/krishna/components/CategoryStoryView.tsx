@@ -4,6 +4,7 @@ import React, { useEffect } from 'react';
 import Link from 'next/link';
 import { CategoryInfo, PortfolioImage, CATEGORIES } from '../data/portfolioData';
 import { ArrowLeft, ArrowRight, Eye } from 'lucide-react';
+import { useNavigation } from '@/components/InstantViewRouter';
 
 interface CategoryStoryViewProps {
   category: CategoryInfo;
@@ -22,6 +23,7 @@ export const CategoryStoryView: React.FC<CategoryStoryViewProps> = ({
   onImageClick,
   onInquire,
 }) => {
+  const { navigateTo } = useNavigation();
   // Scroll to top when category story opens
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -49,6 +51,10 @@ export const CategoryStoryView: React.FC<CategoryStoryViewProps> = ({
             href="/"
             prefetch={true}
             id="story-home-btn"
+            onClick={(e) => {
+              e.preventDefault();
+              navigateTo('/');
+            }}
             className="group flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-[#1F1F1F]/20 hover:border-[#1F1F1F] bg-white/70 hover:bg-[#1F1F1F] text-[#1F1F1F] hover:text-[#ECE8E8] text-[9.5px] sm:text-[10px] tracking-[0.14em] uppercase transition-all cursor-pointer shadow-2xs font-sans font-medium"
             title="Return to Still Studio Home"
           >
@@ -475,6 +481,10 @@ export const CategoryStoryView: React.FC<CategoryStoryViewProps> = ({
           <Link
             href="/"
             prefetch={true}
+            onClick={(e) => {
+              e.preventDefault();
+              navigateTo('/');
+            }}
             className="w-full sm:w-auto px-7 py-3.5 border border-[#1F1F1F]/30 hover:border-[#1F1F1F] bg-white/70 hover:bg-[#1F1F1F] text-[#1F1F1F] hover:text-[#ECE8E8] text-[10px] tracking-[0.22em] uppercase font-medium transition-all cursor-pointer shadow-xs inline-flex items-center justify-center gap-2"
           >
             <span>←</span>

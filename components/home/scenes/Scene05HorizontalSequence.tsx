@@ -2,9 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { usePageTransition } from "@/components/PageTransition";
+import { useNavigation } from "@/components/InstantViewRouter";
 
 interface SuiteItem {
   id: string;
@@ -78,6 +80,7 @@ export default function Scene05HorizontalSequence() {
   const progressPillRef = useRef<HTMLDivElement>(null);
   const [activeIdx, setActiveIdx] = useState(1);
   const { triggerTransition } = usePageTransition();
+  const { navigateTo } = useNavigation();
 
   useEffect(() => {
     gsap.registerPlugin(ScrollTrigger);
@@ -108,9 +111,9 @@ export default function Scene05HorizontalSequence() {
         const totalX = getScrollAmount();
         track.style.transform = `translate3d(${(p * totalX).toFixed(1)}px, 0, 0)`;
 
-        // Update active index (1 to 4)
+        // Update active index (1 to 4) only when changed to avoid re-rendering
         const currentSuite = Math.min(4, Math.max(1, Math.floor(p * 4) + 1));
-        setActiveIdx(currentSuite);
+        setActiveIdx((prev) => (prev === currentSuite ? prev : currentSuite));
 
         // Progress indicators
         if (progressBarRef.current) {
@@ -169,12 +172,16 @@ export default function Scene05HorizontalSequence() {
             {suites.map((item, index) => {
               const isActive = activeIdx === index + 1;
               return (
-                <div
+                <Link
                   key={item.id}
-                  onClick={() => triggerTransition(item.link)}
+                  href={item.link}
+                  prefetch={true}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigateTo(item.link);
+                  }}
                   data-cursor="OPEN"
-                  data-magnetic
-                  className={`relative flex-shrink-0 group cursor-pointer transition-all duration-500 ${
+                  className={`relative flex-shrink-0 group cursor-pointer transition-all duration-500 block ${
                     isActive ? "opacity-100 scale-100" : "opacity-60 scale-[0.96]"
                   }`}
                 >
@@ -214,7 +221,7 @@ export default function Scene05HorizontalSequence() {
                       </div>
                     </div>
                   </div>
-                </div>
+                </Link>
               );
             })}
           </div>

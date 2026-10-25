@@ -117,31 +117,36 @@ export default function Hero() {
       }
     }, heroSectionRef);
 
-    // Subtle Mouse Parallax Shift
+    // Subtle Mouse Parallax Shift (Throttled to rAF for 0ms click latency)
+    let mouseRaf: number | null = null;
     const onMouseMove = (e: MouseEvent) => {
-      const { clientX, clientY } = e;
-      const normX = clientX / window.innerWidth - 0.5;
-      const normY = clientY / window.innerHeight - 0.5;
+      if (mouseRaf) return;
+      mouseRaf = requestAnimationFrame(() => {
+        mouseRaf = null;
+        const normX = e.clientX / window.innerWidth - 0.5;
+        const normY = e.clientY / window.innerHeight - 0.5;
 
-      const titleX = normX * 4;
-      const titleY = normY * 3;
-      const cameraX = normX * 12;
-      const cameraY = normY * 8;
+        const titleX = normX * 4;
+        const titleY = normY * 3;
+        const cameraX = normX * 12;
+        const cameraY = normY * 8;
 
-      if (dreamRef.current) {
-        gsap.to(dreamRef.current, { x: titleX, y: titleY, duration: 1.2, ease: "power2.out" });
-      }
-      if (scapesRef.current) {
-        gsap.to(scapesRef.current, { x: -titleX, y: titleY, duration: 1.2, ease: "power2.out" });
-      }
-      if (cameraRef.current) {
-        gsap.to(cameraRef.current, { x: cameraX, y: cameraY, duration: 1.2, ease: "power2.out" });
-      }
+        if (dreamRef.current) {
+          gsap.to(dreamRef.current, { x: titleX, y: titleY, duration: 1.2, ease: "power2.out", overwrite: "auto" });
+        }
+        if (scapesRef.current) {
+          gsap.to(scapesRef.current, { x: -titleX, y: titleY, duration: 1.2, ease: "power2.out", overwrite: "auto" });
+        }
+        if (cameraRef.current) {
+          gsap.to(cameraRef.current, { x: cameraX, y: cameraY, duration: 1.2, ease: "power2.out", overwrite: "auto" });
+        }
+      });
     };
 
-    window.addEventListener("mousemove", onMouseMove);
+    window.addEventListener("mousemove", onMouseMove, { passive: true });
 
     return () => {
+      if (mouseRaf) cancelAnimationFrame(mouseRaf);
       window.removeEventListener("mousemove", onMouseMove);
       ctx.revert();
     };
