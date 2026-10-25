@@ -548,3 +548,5 @@ export default function Scene01Hero() {
     </section>
   );
 }
+
+export { Scene01Hero };

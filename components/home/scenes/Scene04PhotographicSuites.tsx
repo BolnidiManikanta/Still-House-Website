@@ -257,3 +257,5 @@ export default function Scene04PhotographicSuites() {
     </section>
   );
 }
+
+export { Scene04PhotographicSuites };

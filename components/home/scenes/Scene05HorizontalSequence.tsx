@@ -245,3 +245,5 @@ export default function Scene05HorizontalSequence() {
     </section>
   );
 }
+
+export { Scene05HorizontalSequence };

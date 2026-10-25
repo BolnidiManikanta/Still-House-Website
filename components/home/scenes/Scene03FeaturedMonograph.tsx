@@ -445,3 +445,5 @@ export default function Scene03FeaturedMonograph() {
     </section>
   );
 }
+
+export { Scene03FeaturedMonograph };

@@ -237,3 +237,5 @@ export default function Scene06ArchivedWorks() {
     </section>
   );
 }
+
+export { Scene06ArchivedWorks };

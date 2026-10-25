@@ -335,3 +335,5 @@ export default function Scene02Curatorial() {
     </section>
   );
 }
+
+export { Scene02Curatorial };

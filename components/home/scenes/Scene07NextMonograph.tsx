@@ -253,3 +253,5 @@ export default function Scene07NextMonograph() {
     </section>
   );
 }
+
+export { Scene07NextMonograph };
